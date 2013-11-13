@@ -1,0 +1,52 @@
+<project name="jar-app">
+
+	<macrodef name="crio-jar">
+		<attribute name="to.jar.file"/>
+		<attribute name="preverify.dir"/>
+		<attribute name="resources.dir"/>
+		
+		<sequential>
+			<echo>[crio-jar] @{preverify.dir}, @{resources.dir} -> @{to.jar.file}</echo>
+		
+			<condition property="manifest.name" value="@{resources.dir}/META-INF/MANIFEST.MF">
+				<available file="@{resources.dir}/META-INF/MANIFEST.MF"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/META-INF/manifest.mf">
+				<available file="@{resources.dir}/META-INF/manifest.mf"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/META-INF/Manifest.mf">
+				<available file="@{resources.dir}/META-INF/Manifest.mf"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/meta-inf/MANIFEST.MF">
+				<available file="@{resources.dir}/meta-inf/MANIFEST.MF"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/meta-inf/manifest.mf">
+				<available file="@{resources.dir}/meta-inf/manifest.mf"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/meta-inf/Manifest.mf">
+				<available file="@{resources.dir}/meta-inf/Manifest.mf"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/Meta-inf/MANIFEST.MF">
+				<available file="@{resources.dir}/Meta-inf/MANIFEST.MF"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/Meta-inf/manifest.mf">
+				<available file="@{resources.dir}/Meta-inf/manifest.mf"/>
+			</condition>
+			<condition property="manifest.name" value="@{resources.dir}/Meta-inf/Manifest.mf">
+				<available file="@{resources.dir}/Meta-inf/Manifest.mf"/>
+			</condition>
+			<fail unless="manifest.name" message="Cannot find manifest file at @{resources.dir}/META-INF/MANIFEST.MF. This is required for deploying imlets."/>
+		
+		
+		
+		
+			<jar destfile="@{to.jar.file}" manifest="${manifest.name}">
+				<fileset dir="@{preverify.dir}" >
+					<exclude name="**/*.java"/>
+				</fileset>
+				<fileset dir="@{resources.dir}" excludes="CVS/** .svn" />
+			</jar>
+		</sequential>
+    </macrodef>
+	
+</project>

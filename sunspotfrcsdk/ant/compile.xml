@@ -1,0 +1,27 @@
+<project name="compile">
+
+	<macrodef name="crio-compile">
+		<attribute name="src.dir"/>
+		<attribute name="classes.dir"/>
+		<attribute name="classpath" />
+		<attribute name="bootclasspath"/>
+		
+		<sequential>
+			<echo>[crio-compile] @{src.dir}, @{classpath}, @{bootclasspath} -> @{classes.dir}</echo>
+			
+			<javac sourcepath="" srcdir="@{src.dir}"
+				   destdir="@{classes.dir}"
+				   includeAntRuntime="no"
+				   includeJavaRuntime="no"
+				   bootclasspath="@{bootclasspath}"
+				   classpath="@{classpath}"
+				   target="1.2"
+				   source="1.3"
+				   debug="true"
+				   fork="yes">
+				   <compilerarg value="-Xlint:deprecation"/>
+			</javac>
+		</sequential>
+	</macrodef>
+	
+</project>

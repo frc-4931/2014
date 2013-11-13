@@ -1,0 +1,53 @@
+<project name="preverify">
+	<property name="crio-preverify-exclude-library-jars" value="false"/>
+	
+	<macrodef name="crio-preverify">
+		<attribute name="preverify.dir"/>
+		<attribute name="classes.dir"/>
+		<attribute name="raw.util.jar.classes.dir"/>
+		<attribute name="raw.util.jars"/>
+		<attribute name="preverified.util.jars"/>
+		<attribute name="bootclasspath"/>
+		<attribute name="preverify.executable" default="${sunspot.home}/bin/preverify"/>
+		
+		<sequential>
+			<echo>[crio-preverify] @{classes.dir}, @{raw.util.jars}, @{preverified.util.jars}, @{bootclasspath} -> @{preverify.dir}</echo>
+			
+			<if>
+				<equals arg1="${preverify.exclude.library.jars}" arg2="true" />
+				<then>
+					<echo>[crio-preverify] Not moving library jars to preverify folder</echo>
+					<exec executable="@{preverify.executable}" failonerror="true">
+						<arg value="-d"/>
+						<arg value="@{preverify.dir}"/>
+						<arg value="-classpath"/>
+						<arg value="@{bootclasspath}${path.separator}@{classes.dir}${path.separator}@{preverify.dir}${path.separator}@{preverified.util.jars}${path.separator}@{raw.util.jars}"/>
+						<arg value="@{classes.dir}"/>
+					</exec>
+				</then>
+				<else>
+					<for list="@{preverified.util.jars}" param="in.jar.file" delimiter="${path.separator}">
+						<sequential>
+							<unjar src="@{in.jar.file}" dest="@{preverify.dir}" />
+						</sequential>
+					</for>
+					<for list="@{raw.util.jars}" param="in.jar.file" delimiter="${path.separator}">
+						<sequential>
+							<unjar src="@{in.jar.file}" dest="@{raw.util.jar.classes.dir}" />
+						</sequential>
+					</for>
+					<exec executable="@{preverify.executable}" failonerror="true">
+						<arg value="-d"/>
+						<arg value="@{preverify.dir}"/>
+						<arg value="-classpath"/>
+						<arg value="@{bootclasspath}${path.separator}@{classes.dir}${path.separator}@{preverify.dir}"/>
+						<arg value="@{classes.dir}"/>
+						<arg value="@{raw.util.jar.classes.dir}"/>
+					</exec>
+				</else>
+			</if>
+		</sequential>
+    </macrodef>
+	
+	
+</project>
