@@ -1,0 +1,13 @@
+<project name="echo">
+
+	<macrodef name="crio-echo">
+		<attribute name="remoteaddress"/>
+		
+		<sequential>
+			<echo>[crio-echo] @{remoteaddress}</echo>
+			<frcecho remoteaddress="@{remoteaddress}"/>
+		</sequential>
+	</macrodef>
+
+</project>
+

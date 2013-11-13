@@ -1,0 +1,123 @@
+<!-- classpath for building project -->
+<project name="classpath-setup">
+	<patternset id="wpilibj-classpath.pattern">
+		<include name="wpilibj*.jar"/>
+	</patternset>
+	<patternset id="networktables-classpath.pattern">
+		<include name="networktables*.jar"/>
+	</patternset>
+	<patternset id="squawk-classpath.pattern">
+		<include name="squawk*.jar"/>
+	</patternset>
+	
+	
+	<if>
+		<isset property="alternate.wpilibj.archive" />
+		<then>
+			<if>
+				<equals arg1="${alternate.wpilibj.archive}" arg2="" />
+				<then>
+					<path id="wpilibj.classpath"/>
+				</then>
+				<else>
+					<path id="wpilibj.classpath">
+						<pathelement location="${alternate.wpilibj.archive}" />
+					</path>
+				</else>
+			</if>
+		</then>
+		<else>
+			<path id="wpilibj.classpath">
+				<fileset dir="${sunspot.home}/lib">
+					<patternset refid="wpilibj-classpath.pattern"/>
+				</fileset>
+			</path>
+		</else>
+	</if>
+	<if>
+		<isset property="alternate.networktables.archive" />
+		<then>
+			<if>
+				<equals arg1="${alternate.networktables.archive}" arg2="" />
+				<then>
+					<path id="networktables.classpath"/>
+				</then>
+				<else>
+					<path id="networktables.classpath">
+						<pathelement location="${alternate.networktables.archive}" />
+					</path>
+				</else>
+			</if>
+		</then>
+		<else>
+			<path id="networktables.classpath">
+				<fileset dir="${sunspot.home}/lib">
+					<patternset refid="networktables-classpath.pattern"/>
+				</fileset>
+			</path>
+		</else>
+	</if>
+	<if>
+		<isset property="alternate.util.classpath" />
+		<then>
+			<if>
+				<equals arg1="${alternate.util.classpath}" arg2="" />
+				<then>
+					<path id="util.classpath"/>
+				</then>
+				<else>
+					<path id="util.classpath">
+						<pathelement path="${alternate.util.classpath}" />
+					</path>
+				</else>
+			</if>
+		</then>
+		<else>
+			<path id="util.classpath">
+				<fileset dir="${sunspot.home}/lib">
+					<patternset>
+						<include name="**/*.jar"/>
+						<invert>
+							<patternset refid="wpilibj-classpath.pattern" />
+							<patternset refid="networktables-classpath.pattern" />
+							<patternset refid="squawk-classpath.pattern" />
+						</invert>
+					</patternset>
+				</fileset>
+			</path>
+		</else>
+	</if>
+	
+	<pathconvert property="classpath" pathsep="${path.separator}">
+		<path>
+			<path refid="wpilibj.classpath" />
+			<path refid="networktables.classpath" />
+			<path refid="util.classpath" />
+		</path>
+		<map from="${sunspot.home}" to="$${sunspot.home}"/>
+	</pathconvert>
+	<pathconvert property="full.classpath" pathsep="${path.separator}">
+		<path>
+			<path refid="wpilibj.classpath" />
+			<path refid="networktables.classpath" />
+			<path refid="util.classpath" />
+		</path>
+	</pathconvert>
+	
+	<pathconvert property="bootclasspath" pathsep="${path.separator}">
+		<path>
+			<fileset dir="${sunspot.home}/lib">
+				<patternset refid="squawk-classpath.pattern"/>
+			</fileset>
+		</path>
+		<map from="${sunspot.home}" to="$${sunspot.home}"/>
+	</pathconvert>
+	<pathconvert property="full.bootclasspath" pathsep="${path.separator}">
+		<path>
+			<fileset dir="${sunspot.home}/lib">
+				<patternset refid="squawk-classpath.pattern"/>
+			</fileset>
+		</path>
+	</pathconvert>
+	
+</project>

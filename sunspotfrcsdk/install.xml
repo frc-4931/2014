@@ -1,0 +1,96 @@
+<project default="install" basedir=".">
+    <taskdef resource="com/sun/spot/sdk/tool/ftp/antlib.xml">
+	  <classpath>
+	    <pathelement location="ant/sdktoolftp.jar"/>
+	    <pathelement location="ant/commons-net-1.4.1.jar"/>
+	    <pathelement location="ant/jakarta-oro-2.0.8.jar"/>
+	  </classpath>
+    </taskdef>
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="ant/ant-contrib.jar"/>
+		</classpath>
+	</taskdef>
+	
+	
+    <target name="install-platform-specific">
+		<condition property="platform-specific-path" value="platform-specific/windows-x86">
+			<or>
+				<os family="windows" arch="x86" />
+				<os family="windows" arch="amd64" />
+				<os family="windows" arch="em64t" />
+			</or>
+		</condition>
+		<condition property="platform-specific-path" value="platform-specific/sunos-x86">
+			<os name="SunOS" arch="x86" />
+		</condition>
+		<condition property="platform-specific-path" value="platform-specific/linux-x86">
+			<or>
+				<os name="Linux" arch="i386" />
+				<os name="Linux" arch="amd64" />
+				<os name="Linux" arch="amd64" />
+			</or>
+		</condition>
+		<condition property="platform-specific-path" value="platform-specific/macosx-x86">
+			<or>
+				<os name="Mac OS X" arch="i386" />
+				<os name="Mac OS X" arch="x86_64" />
+				<os name="Mac OS X" arch="x86_64" />
+			</or>
+		</condition>
+	
+		
+		<fail unless="platform-specific-path">Could not install platform specific. Unsupported OS: ${os.name} ${os.arch}</fail>
+		
+        <copy todir="bin">
+          <fileset dir="${platform-specific-path}"/>
+        </copy>
+        <chmod file="bin/preverify" perm="+x"/>
+    </target>
+
+
+    <property name="findspottimeout" value="30"/>
+    <property name="remoteaddress.default" value="10.0.0.2"/>
+    <target name="checkremoteaddress">
+	  <condition property="remoteaddress.notset">
+		<or>
+		  <not> 
+			<isset property="remoteaddress"/>
+		  </not>
+		  <equals arg1="${remoteaddress}" arg2="${remoteaddress.default}"/>
+		</or>
+      </condition>
+    </target>
+    
+    <target name="warnonnoremote" if="remoteaddress.notset">
+	  <property name="remoteaddress" value="${remoteaddress.default}" />
+	  <echo>
+============== WARNING ==============
+The team number was not set. Using default value of 0.
+	  If using NetBeans, set the team number in the FRC Configuration pane under Miscellaneous Options.
+	  If using Eclipse, set the team number in the FRC Preferences.
+	  If using Ant files without an IDE, set the remote address in the file ${user.home}/.sunspotfrc.properties.
+=====================================
+	  </echo>
+    </target>
+    
+	<target name="installproperties" depends="checkremoteaddress,warnonnoremote">
+		<property name="new.sunspot.home" location="."/>
+		<pathconvert dirsep="/" property="new.sunspot.home.converted">
+			<path path="${new.sunspot.home}" />
+		</pathconvert>
+		
+		<echo file="${user.home}/.sunspotfrc.properties">sunspot.home=${new.sunspot.home.converted}${line.separator}</echo>
+		<echo file="${user.home}/.sunspotfrc.properties" append="true">remoteaddress=${remoteaddress}${line.separator}</echo>
+		<if><isset property="alternate.wpilibj.archive"/> 
+			<then><echo file="${user.home}/.sunspotfrc.properties" append="true">alternate.wpilibj.archive=${alternate.wpilibj.archive}${line.separator}</echo></then> 
+		</if> 
+		<if><isset property="alternate.networktables.archive"/> 
+			<then><echo file="${user.home}/.sunspotfrc.properties" append="true">alternate.networktables.archive=${alternate.networktables.archive}${line.separator}</echo></then> 
+		</if>
+
+		<echo>Set remote address to ${remoteaddress}</echo>
+	</target>
+
+    <target name="install" depends="installproperties,install-platform-specific" />
+</project>

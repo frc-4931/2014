@@ -1,0 +1,16 @@
+<project name="deploy">
+
+	<macrodef name="crio-deploy">
+		<attribute name="remoteaddress"/>
+		<attribute name="suite.file"/>
+		
+		<sequential>
+			<echo>[crio-deploy] @{suite.file} -> @{remoteaddress}</echo>
+			<frcdeploy
+				remoteaddress="@{remoteaddress}"
+				localfile="@{suite.file}"
+				remotefilepath="/ni-rt/system/robot.suite"/>
+		</sequential>
+	</macrodef>
+	
+</project>

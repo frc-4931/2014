@@ -1,0 +1,28 @@
+<project name="debug">
+
+	<property name="proxy.classpath" value="${sunspot.home}/bin/debuggerproxylauncher.jar${path.separator}${sunspot.home}/bin/romizer_classes.jar${path.separator}${sunspot.home}/bin/hosted-support_classes.jar${path.separator}${sunspot.home}/bin/debugger-proxy_classes.jar${path.separator}${sunspot.home}/bin/translator_classes.jar${path.separator}${sunspot.home}/bin/spotclient_host.jar${path.separator}${sunspot.home}/bin/signing_host.jar${path.separator}${sunspot.home}/bin/squawk_device_classes.jar${path.separator}${sunspot.home}/lib/multihop_common.jar${path.separator}${sunspot.home}/lib/spotlib_host.jar${path.separator}${sunspot.home}/lib/spotlib_common.jar${path.separator}${sunspot.home}/lib/squawk_common.jar${path.separator}${sunspot.home}/lib/RXTXcomm.jar${path.separator}${sunspot.home}/lib/spotclient_host.jar${path.separator}${sunspot.home}/lib/signing_host.jar${path.separator}"/>
+    
+	<target name="-do-debug-proxy-run">
+		<echo>[crio-debug] Connecting to debug on ${remoteaddress}:2800  Classpath: ${proxy.classpath}</echo>
+    	<java classpath="${proxy.classpath}"
+              classname="com.sun.squawk.debugger.sdp.SDP"
+              fork="true"
+              failonerror="true">
+            <jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/Method.getParameterTypes"/>
+            <jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/SymbolParser.getSignatureTypeAt"/>
+            <jvmarg value="-XX:CompileCommand=exclude,com/sun/squawk/SymbolParser.stripMethods"/>
+            <jvmarg value="-Xmx256M"/>
+            <arg value="-vm:socket://${remoteaddress}:2800"/>
+			<arg value="-singlesession"/>
+            <arg value="-cp:${full.bootclasspath}${path.separator}${full.classpath}${path.separator}${app.jar.file}"/>
+    	</java> 
+    </target>
+
+	<target name="-do-debug">
+    	<antcall target="debug-proxy-run"/>
+	</target>
+	
+	<target name="debug-proxy" depends="-do-debug-proxy-run"/>
+	<target name="debug-proxy-run" depends="debug-proxy"/>
+	
+</project>

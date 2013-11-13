@@ -1,0 +1,114 @@
+<project name="crio-project-build">
+	<!--
+		Supported Targets
+		jar
+		clean
+		deploy
+		run
+		javadoc
+		jar-deploy
+	-->
+	<taskdef resource="net/jtools/classloadertask/antlib.xml" classpath="${sunspot.home}/ant/ant-classloadertask.jar"/>
+	<classloader loader="system" classpath="${sunspot.home}/ant/commons-net-1.4.1.jar"/>
+	<classloader loader="system" classpath="${sunspot.home}/ant/jakarta-oro-2.0.8.jar"/>
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${sunspot.home}/ant/ant-contrib.jar"/>
+		</classpath>
+	</taskdef>
+	
+	<taskdef resource="com/sun/spot/sdk/tool/ftp/antlib.xml">
+		<classpath>
+			<pathelement location="${sunspot.home}/ant/sdktoolftp.jar"/>
+			<pathelement location="${sunspot.home}/ant/commons-net-1.4.1.jar"/>
+			<pathelement location="${sunspot.home}/ant/jakarta-oro-2.0.8.jar"/>
+		</classpath>
+	</taskdef>
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+		<classpath>
+			<pathelement location="${sunspot.home}/ant/xmltask.jar"/>
+		</classpath>
+	</taskdef>
+	
+	
+	<property file="${user.properties.file}"/>
+	<property file="${sunspot.home}/default.properties"/>
+	
+
+	<import file="ant/compile.xml"/>
+	<import file="ant/deploy.xml"/>
+	<import file="ant/preverify.xml"/>
+	<import file="ant/suite.xml"/>
+	<import file="ant/configure.xml"/>
+	<import file="ant/jar-app.xml"/>
+	<import file="ant/classpath.xml"/>
+	<import file="ant/netbeans.xml"/>
+	<import file="ant/debug.xml"/>
+	
+	
+    <target name="clean">
+		<delete dir="${build.dir}"/>
+	</target>
+	
+    <target name="-actual-compile-compile" depends="clean">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${classes.dir}"/>
+		<crio-compile src.dir="${src.dir}" classes.dir="${classes.dir}" classpath="${classpath}" bootclasspath="${bootclasspath}"/>
+    </target>
+    <target name="-post-compile"/>
+    <target name="compile" depends="-actual-compile-compile,-post-compile"/>
+	
+    <target name="preverify" depends="compile">
+		<mkdir dir="${preverify.dir}"/>
+		<mkdir dir="${preverify.raw.util.jar.classes.dir}"/>
+		<crio-preverify classes.dir="${classes.dir}" preverify.dir="${preverify.dir}" preverified.util.jars="${classpath}" raw.util.jar.classes.dir="${preverify.raw.util.jar.classes.dir}" raw.util.jars="" bootclasspath="${bootclasspath}"/>
+	</target>
+	
+    <target name="jar-app" depends="jar"/>
+    <target name="jar" depends="preverify">
+		<crio-jar preverify.dir="${preverify.dir}" resources.dir="${resources.dir}" to.jar.file="${app.jar.file}" />
+	</target>
+	
+    <target name="suite" depends="jar">
+		<mkdir dir="${suite.dir}"/>
+		<crio-suite in.jar.file="${app.jar.file}" target.dir="${suite.dir}" image.name="${suite.name}"/>
+	</target>
+	
+    <target name="deploy" depends="suite">
+		<crio-configure remoteaddress="${remoteaddress}" type="Java" />
+		
+		<crio-deploy suite.file="${suite.file}" remoteaddress="${remoteaddress}"/>
+		
+	</target>
+	
+    <target name="run">
+		<frcrun remoteaddress="${remoteaddress}"/>
+	</target>
+	
+    <target name="javadoc">
+		<delete dir="doc"/>
+		<mkdir dir="doc"/>
+		<javadoc verbose="true" author="true" destdir="doc" link="file:///${sunspot.home}/doc/javadoc" linksource="true">
+			<classpath path="${full.classpath}:${full.bootclasspath}"/>
+			<fileset dir="src" >
+				<filename name="**/*.java"/>
+			</fileset>
+		</javadoc>
+	</target>
+	
+	<target name="debug" depends="-do-debug"/>
+	<target name="debug-run">
+        <frcrun remoteaddress="${remoteaddress}" debug="true"/>
+	</target>
+	
+	
+    <target name="archive-source">
+		<zip destfile="${app.src.zip.file}" basedir="${src.dir}" />
+    </target>
+	
+    <target name="archive-project">
+		<zip destfile="${app.project.zip.file}" basedir="${project.dir}" />
+    </target>
+	
+	
+</project>
