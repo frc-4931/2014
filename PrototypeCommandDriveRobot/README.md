@@ -1,17 +1,4 @@
-This is a very basic program to control a robot using either:
-
-* an arcade-style single joystick, or
-* a joystick for the left motoro and a joystick for the right motor
-
-Which is used is easily changed in RobotConfig, which is where the ports for all the inputs and outputs are specified:
-
-| Input Ports | Description |
-+-------------+-------------+
-| 1 | joystick for left motor or arcade-style joystick |
-| 2 | joystick for right motor |
-
-| Output Ports | Description |
-+-------------+-------------+
-| 1 | left motor |
-| 2 | right motor |
-
+This is a very basic program for a robot with two motors, one for the left wheels and one for the right wheels.
+The robot is controlled using an arcade-style single joystick: forward, reverse, turn left, turn right.
+The joystick position also controls the variable-speed motors, though buttons on the joystick can increase
+or decrease the maximum speed.
