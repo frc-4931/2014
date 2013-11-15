@@ -10,8 +10,8 @@ package org.frc4931.prototype;
 import edu.wpi.first.wpilibj.IterativeRobot;
 
 /**
- * An iterative robot that relies upon the command framework for control. The {@link IterativeRobot} superclass will automatically
- * invoke these methods based upon the current mode of the robot:
+ * A simple iterative robot that basically does nothing. The {@link IterativeRobot} superclass will automatically invoke these
+ * methods based upon the current mode of the robot:
  * <ul>
  * <li>{@link #robotInit()} - called when the robot is first started up, useful for any initialization code</li>
  * <li>{@link #autonomousPeriodic()} - called periodically during autonomous mode</li>

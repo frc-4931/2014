@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
- * An iterative robot that relies upon the command framework for control. The {@link IterativeRobot} superclass will automatically
+ * A simple iterative robot that uses a two joysticks and two motors. The {@link IterativeRobot} superclass will automatically
  * invoke these methods based upon the current mode of the robot:
  * <ul>
  * <li>{@link #robotInit()} - called when the robot is first started up, useful for any initialization code</li>
