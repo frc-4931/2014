@@ -19,18 +19,20 @@
 /image.sym
 /build
 
-# Definitely include these ...
-!/resources
-!build.xml
-!build.properties
-
 # We are including the 'sunspotfrcsdk' files in our repo. 
 # If they were managed in a better way (e.g., Maven) then we wouldn't 
 # have to store them locally. But this is the easiest way to ensure 
 # the SDK is easily accessible and that everyone is using the same SDK.
 #
-# First, be sure to ignore some things (like JavaDoc) ...
-/sunspotfrcsdk/doc
+# Always include everything in the SDK ...
+!/sunspotfrcsdk
 
-# But then always include everything else in the SDK ...
-!/sunspotfrcsdk/**/*
+# Except the JavaDoc ...
+sunspotfrcsdk/doc
+
+# Definitely include these ...
+!/resources
+!build.xml
+!build.properties
+
+
