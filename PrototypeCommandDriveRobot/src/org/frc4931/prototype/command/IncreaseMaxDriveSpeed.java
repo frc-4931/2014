@@ -14,4 +14,8 @@ public class IncreaseMaxDriveSpeed extends ChangeMaxDriveSpeed {
     public IncreaseMaxDriveSpeed( double delta ) {
         super(IncreaseMaxDriveSpeed.class.getName(), delta);
     }
+
+    public String toString() {
+        return "Increase the maximum drive speed by " + delta + "%";
+    }
 }

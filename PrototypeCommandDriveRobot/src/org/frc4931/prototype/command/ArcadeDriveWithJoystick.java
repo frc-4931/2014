@@ -10,7 +10,8 @@ import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.subsystem.DriveTrain;
 
 /**
- * A command that is used to drive with the single joystick. This is created as the default command in the {@link DriveTrain}.
+ * A command that is used to drive with inputs coming from the single arcade-style joystick. This is created as the default
+ * command in the {@link DriveTrain}.
  */
 public class ArcadeDriveWithJoystick extends CommandBase {
 
@@ -19,6 +20,7 @@ public class ArcadeDriveWithJoystick extends CommandBase {
     }
 
     protected void execute() {
+        Robot.printDebug(toString());
         Robot.driveTrain.driveWithArcadeJoystick();
     }
 
@@ -28,5 +30,9 @@ public class ArcadeDriveWithJoystick extends CommandBase {
 
     protected void end() {
         Robot.driveTrain.stopAllMotors();
+    }
+
+    public String toString() {
+        return "Drive with arcade-style joystick";
     }
 }

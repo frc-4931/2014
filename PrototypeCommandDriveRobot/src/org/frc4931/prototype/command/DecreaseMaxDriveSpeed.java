@@ -14,4 +14,8 @@ public class DecreaseMaxDriveSpeed extends ChangeMaxDriveSpeed {
     public DecreaseMaxDriveSpeed( double delta ) {
         super(DecreaseMaxDriveSpeed.class.getName(), -delta);
     }
+
+    public String toString() {
+        return "Drive with arcade-style joystick";
+    }
 }
