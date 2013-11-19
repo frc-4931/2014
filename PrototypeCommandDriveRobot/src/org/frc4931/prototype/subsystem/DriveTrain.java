@@ -46,13 +46,16 @@ public class DriveTrain extends Subsystem {
     }
 
     /**
-     * Drive forward at full power.
+     * Drive forward or backward.
      * <p>
      * This can be called within commands.
      * </p>
+     * 
+     * @param speedFactor the fraction of full-speed to drive, ranging from -1.0 (backward at full power) to 1.0 (forward at full
+     *        power)
      */
-    public void driveStraight() {
-        drive.arcadeDrive(1.0, 0.0);
+    public void driveStraight( double speedFactor ) {
+        drive.arcadeDrive(speedFactor, 0.0);
     }
 
     /**

@@ -9,11 +9,14 @@ package org.frc4931.prototype.command;
 import org.frc4931.prototype.Robot;
 
 /**
- * A command used to increase or decrease the maximum speed of the robot.
+ * A abstract command used to increase or decrease the maximum speed of the robot.
+ * 
+ * @see IncreaseMaxDriveSpeed
+ * @see DecreaseMaxDriveSpeed
  */
 public abstract class ChangeMaxDriveSpeed extends CommandBase {
 
-    private final double delta;
+    protected final double delta;
 
     protected ChangeMaxDriveSpeed( String name,
                                    double delta ) {
@@ -22,21 +25,16 @@ public abstract class ChangeMaxDriveSpeed extends CommandBase {
         requires(Robot.driveTrain);
     }
 
-    /**
-     * Called repeatedly when this Command is scheduled to run.
-     */
     protected void execute() {
-        // Called repeatedly when this Command is scheduled to run
+        Robot.printDebug(toString());
         Robot.driveTrain.changeMaxDriveSpeed(delta);
     }
 
     protected boolean isFinished() {
-        // Make this return true when this Command no longer needs to run execute()
-        return true;
+        return true; // finishes immediately
     }
 
     protected void end() {
         // nothing to do
     }
-
 }

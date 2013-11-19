@@ -9,7 +9,7 @@ package org.frc4931.prototype.command;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * The base for all commands.
+ * The base class for all of our {@link Command} implementation classes.
  */
 public abstract class CommandBase extends Command {
 
