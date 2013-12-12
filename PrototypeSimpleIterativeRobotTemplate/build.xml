@@ -22,8 +22,8 @@
     For a complete listing of properties that are used, and their
     explanations, see the file ${sunspot.home}/default.properties.
 
-    <property name="sunspot.home" value="../sunspotfrcsdk"/>
     -->
+    <property name="sunspot.home" value="../sunspotfrcsdk"/>
     <property name="user.properties.file" value="build.properties"/>
     <property file="${user.home}/.sunspotfrc.properties"/>
     <import file="${sunspot.home}/build.xml"/>
