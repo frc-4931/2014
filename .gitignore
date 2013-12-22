@@ -18,6 +18,7 @@
 /image.suite
 /image.sym
 /build
+build
 
 # We are including the 'sunspotfrcsdk' files in our repo. 
 # If they were managed in a better way (e.g., Maven) then we wouldn't 

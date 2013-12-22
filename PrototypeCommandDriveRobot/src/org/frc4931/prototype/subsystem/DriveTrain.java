@@ -8,35 +8,36 @@ package org.frc4931.prototype.subsystem;
 
 import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
-import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The drive train, which sets up and uses an {@link ArcadeDriveWithJoystick} command by default.
  */
-public class DriveTrain extends Subsystem {
+public abstract class DriveTrain extends Subsystem {
 
     private static final double MAX_SPEED_FACTOR = 1.0d;
     private static final double MIN_SPEED_FACTOR = 0.0d;
 
-    private final Jaguar leftMotor;
-    private final Jaguar rightMotor;
+    protected final SpeedController leftMotor;
+    protected final SpeedController rightMotor;
     private final RobotDrive drive;
 
     private double speedFactor = MAX_SPEED_FACTOR;
 
-    public DriveTrain() {
+    protected DriveTrain( SpeedController leftMotor,
+                          SpeedController rightMotor ) {
         // Set up the motors ...
-        leftMotor = new Jaguar(Robot.DriveMotors.LEFT_PORT);
-        rightMotor = new Jaguar(Robot.DriveMotors.RIGHT_PORT);
+        this.leftMotor = leftMotor;
+        this.rightMotor = rightMotor;
 
         // And the drive controller ...
         drive = new RobotDrive(leftMotor, rightMotor);
-        drive.setInvertedMotor(MotorType.kRearLeft, Robot.DriveMotors.LEFT_REVERSED);
-        drive.setInvertedMotor(MotorType.kRearRight, Robot.DriveMotors.RIGHT_REVERSED);
+        drive.setInvertedMotor(MotorType.kFrontLeft, Robot.DriveMotors.LEFT_REVERSED);
+        drive.setInvertedMotor(MotorType.kFrontRight, Robot.DriveMotors.RIGHT_REVERSED);
         drive.setSafetyEnabled(false);
         setMaxDriveSpeed(Robot.DriveMotors.INITIAL_MAX_DRIVE_SPEED);
     }
@@ -107,9 +108,13 @@ public class DriveTrain extends Subsystem {
         drive.setMaxOutput(newSpeed);
     }
 
+    protected abstract double currentLeftSpeed();
+
+    protected abstract double currentRightSpeed();
+
     public void updateStatus() {
-        SmartDashboard.putNumber("Drive (Left)", leftMotor.getSpeed());
-        SmartDashboard.putNumber("Drive (Right)", rightMotor.getSpeed());
+        SmartDashboard.putNumber("Drive (Left)", currentLeftSpeed());
+        SmartDashboard.putNumber("Drive (Right)", currentRightSpeed());
     }
 
 }
