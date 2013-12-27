@@ -9,9 +9,10 @@ package org.frc4931.prototype;
 import org.frc4931.prototype.command.DecreaseMaxDriveSpeed;
 import org.frc4931.prototype.command.IncreaseMaxDriveSpeed;
 import org.frc4931.prototype.command.VerboseOutputToggle;
-import edu.wpi.first.wpilibj.Joystick;
+import org.frc4931.prototype.subsystem.LogitechController;
+import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
+import org.frc4931.prototype.subsystem.LogitechController.Mode;
 import edu.wpi.first.wpilibj.buttons.Button;
-import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
  * This class is the glue that binds the controls on the physical operator interface to the commands and command groups that allow
@@ -22,10 +23,10 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
  */
 public final class OperatorInterface {
 
-    private final Joystick driveJoystick = new Joystick(Robot.DriveJoystick.PORT);
-    private final Button increaseDriveSpeedButton = new JoystickButton(driveJoystick, Robot.DriveJoystick.INCREASE_SPEED_BUTTON);
-    private final Button decreaseDriveSpeedButton = new JoystickButton(driveJoystick, Robot.DriveJoystick.DECREASE_SPEED_BUTTON);
-    private final Button verboseToggleButton = new JoystickButton(driveJoystick, Robot.DriveJoystick.VERBOSE_TOGGLE_BUTTON);
+    private final LogitechController controller = new LogitechController(Robot.Controller.PORT, Mode.D, DriveStyle.TANK);
+    private final Button increaseDriveSpeedButton = controller.getBButton();
+    private final Button decreaseDriveSpeedButton = controller.getAButton();
+    private final Button verboseToggleButton = controller.getYButton();
 
     public OperatorInterface() {
         // Run these commands each time the button is pressed ...
@@ -34,8 +35,8 @@ public final class OperatorInterface {
         verboseToggleButton.whenPressed(new VerboseOutputToggle());
     }
 
-    public Joystick getDriveJoystick() {
-        return driveJoystick;
+    public LogitechController getController() {
+        return controller;
     }
 
 }

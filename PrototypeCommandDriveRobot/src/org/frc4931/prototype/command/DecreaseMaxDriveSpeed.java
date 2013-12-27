@@ -16,6 +16,6 @@ public class DecreaseMaxDriveSpeed extends ChangeMaxDriveSpeed {
     }
 
     public String toString() {
-        return "Drive with arcade-style joystick";
+        return "Decrease the maximum drive speed by " + delta + "%";
     }
 }

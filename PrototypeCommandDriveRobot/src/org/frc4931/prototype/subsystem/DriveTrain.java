@@ -8,8 +8,9 @@ package org.frc4931.prototype.subsystem;
 
 import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
+import org.frc4931.prototype.command.TankDriveWithJoysticks;
+import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,14 +37,14 @@ public abstract class DriveTrain extends Subsystem {
 
         // And the drive controller ...
         drive = new RobotDrive(leftMotor, rightMotor);
-        drive.setInvertedMotor(MotorType.kFrontLeft, Robot.DriveMotors.LEFT_REVERSED);
-        drive.setInvertedMotor(MotorType.kFrontRight, Robot.DriveMotors.RIGHT_REVERSED);
+        drive.setInvertedMotor(Robot.DriveMotors.LEFT_POSITION, Robot.DriveMotors.LEFT_REVERSED);
+        drive.setInvertedMotor(Robot.DriveMotors.RIGHT_POSITION, Robot.DriveMotors.RIGHT_REVERSED);
         drive.setSafetyEnabled(false);
         setMaxDriveSpeed(Robot.DriveMotors.INITIAL_MAX_DRIVE_SPEED);
     }
 
     protected void initDefaultCommand() {
-        setDefaultCommand(new ArcadeDriveWithJoystick());
+        setDefaultCommand(new TankDriveWithJoysticks());
     }
 
     /**
@@ -70,13 +71,27 @@ public abstract class DriveTrain extends Subsystem {
     }
 
     /**
-     * Drive using the joystick.
+     * Drive using the left joystick in arcade-style.
      * <p>
      * This can be called within commands.
      * </p>
      */
     public void driveWithArcadeJoystick() {
-        drive.arcadeDrive(Robot.operatorInterface.getDriveJoystick());
+        LogitechController controller = Robot.operatorInterface.getController();
+        controller.setStyle(DriveStyle.ARCADE_LEFT);
+        controller.drive(drive);
+    }
+
+    /**
+     * Drive using two joysticks in tank style.
+     * <p>
+     * This can be called within commands.
+     * </p>
+     */
+    public void driveWithTankJoysticks() {
+        LogitechController controller = Robot.operatorInterface.getController();
+        controller.setStyle(DriveStyle.TANK);
+        controller.drive(drive);
     }
 
     /**

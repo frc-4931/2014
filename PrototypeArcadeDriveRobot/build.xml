@@ -25,7 +25,8 @@
     -->
     <property name="sunspot.home" value="../sunspotfrcsdk"/>
     <property name="user.properties.file" value="build.properties"/>
-    <property file="${user.home}/.sunspotfrc.properties"/>
+    <!--property file="${user.home}/.sunspotfrc.properties"/-->
+    <property name="remoteaddress" value="10.49.31.2"/>
     <import file="${sunspot.home}/build.xml"/>
 
     <!--
