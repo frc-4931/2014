@@ -7,8 +7,9 @@
 
 package org.frc4931.prototype;
 
+import org.frc4931.prototype.LogitechController.DriveStyle;
+import org.frc4931.prototype.LogitechController.Mode;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,40 +35,19 @@ import edu.wpi.first.wpilibj.Timer;
 public class TankDriveRobot extends IterativeRobot {
 
     /**
-     * The drive joystick's input port and button assignments.
-     * <p>
-     * The Logitech controller has the following axis assignments in <em>D MODE</em>:
-     * <ul>
-     * <li>Axis 1 - Left Joystick horizontal (X) axis</li>
-     * <li>Axis 2 - Left Joystick vertical (Y) axis</li>
-     * <li>Axis 3 - Right Joystick horizontal (X) axis</li>
-     * <li>Axis 4 - Right Joystick vertical (Y) axis</li>
-     * <li>Axis 5 - D-Pad Horizontal</li>
-     * <li>Axis 6 - D-Pad Vertical</li>
-     * <ul>
-     * In <em>X MODE</em>:
-     * <ul>
-     * <li>Axis 1 - Left Joystick horizontal (X) axis</li>
-     * <li>Axis 2 - Left Joystick vertical (Y) axis</li>
-     * <li>Axis 3 - Left Trigger</li>
-     * <li>Axis 4 - Right Joystick horizontal (X) axis</li>
-     * <li>Axis 5 - Right Joystick vertical (Y) axis</li>
-     * <li>Axis 6 - Right Trigger</li>
-     * <ul>
+     * The drive joystick's input port.
      */
     public static final class Inputs {
         public static final int CONTROLLER_PORT = 1;
     }
 
     public static final class LeftDriveMotor {
-        public static final int JOYSTICK_AXIS = 2; // D-MODE
         public static final int OUTPUT_PORT = 2;
         public static final boolean INVERTED = true;
         public static final MotorType POSITION = MotorType.kRearRight;
     }
 
     public static final class RightDriveMotor {
-        public static final int JOYSTICK_AXIS = 4; // D-MODE
         public static final int OUTPUT_PORT = 1;
         public static final boolean INVERTED = true;
         public static final MotorType POSITION = MotorType.kRearLeft;
@@ -77,7 +57,7 @@ public class TankDriveRobot extends IterativeRobot {
      * The input for the robot. We use separate joysticks here, but really we'd only need on Joystick object (which really
      * represents the Logitech controller.
      */
-    private Joystick controller;
+    private LogitechController controller;
     private RobotDrive drive;
 
     /**
@@ -86,7 +66,7 @@ public class TankDriveRobot extends IterativeRobot {
     public void robotInit() {
         // We use separate Joytstick instances since it's actually just one Logitech controller, but we'll actually
         // use separate but specific axes for the left and right side ...
-        controller = new Joystick(Inputs.CONTROLLER_PORT);
+        controller = new LogitechController(Inputs.CONTROLLER_PORT, Mode.D, DriveStyle.TANK);
         drive = new RobotDrive(LeftDriveMotor.OUTPUT_PORT, RightDriveMotor.OUTPUT_PORT);
         drive.setInvertedMotor(RightDriveMotor.POSITION, RightDriveMotor.INVERTED);
         drive.setInvertedMotor(LeftDriveMotor.POSITION, LeftDriveMotor.INVERTED);
@@ -112,8 +92,7 @@ public class TankDriveRobot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         while (isOperatorControl() && isEnabled()) {
-            drive.tankDrive(controller, LeftDriveMotor.JOYSTICK_AXIS, controller, RightDriveMotor.JOYSTICK_AXIS);
-            // drive.tankDrive(leftJoystick, rightJoystick);
+            controller.drive(drive);
             Timer.delay(0.01d);
         }
     }
