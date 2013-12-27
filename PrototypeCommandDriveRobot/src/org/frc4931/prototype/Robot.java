@@ -9,10 +9,10 @@ package org.frc4931.prototype;
 import org.frc4931.prototype.command.DriveForwardAndBackward;
 import org.frc4931.prototype.command.RunTests;
 import org.frc4931.prototype.subsystem.DriveTrain;
-import org.frc4931.prototype.subsystem.JaguarDriveTrain;
+import org.frc4931.prototype.subsystem.LogitechController;
 import org.frc4931.prototype.subsystem.TalonDriveTrain;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,16 +34,9 @@ public class Robot extends IterativeRobot {
     /**
      * The drive joystick's input port and button assignments.
      */
-    public static final class DriveJoystick {
+    public static final class Controller {
         /** The port for the arcade-style drive joystick */
         public static final int PORT = 1;
-
-        /** The button number on the drive joystick that increases the speed. */
-        public static final int INCREASE_SPEED_BUTTON = 4;
-        /** The button number on the drive joystick that decreases the speed. */
-        public static final int DECREASE_SPEED_BUTTON = 3;
-        /** The button number on the drive joystick that toggles verbose output. */
-        public static final int VERBOSE_TOGGLE_BUTTON = 5;
     }
 
     /**
@@ -51,32 +44,28 @@ public class Robot extends IterativeRobot {
      */
     public static final class DriveMotors {
         /** The port for the left motor */
-        public static final int LEFT_PORT = 1;
+        public static final int LEFT_PORT = 2;
         /** The port for the right motor */
-        public static final int RIGHT_PORT = 2;
+        public static final int RIGHT_PORT = 1;
 
         /** Flag specifying whether the left drive motor is reversed */
         public static final boolean LEFT_REVERSED = true;
         /** Flag specifying whether the right drive motor is reversed */
-        public static final boolean RIGHT_REVERSED = false;
+        public static final boolean RIGHT_REVERSED = true;
+
+        /** The position of the left motor in the DriveTrain class */
+        public static final MotorType LEFT_POSITION = MotorType.kRearRight;
+        /** The position of the right motor in the DriveTrain class */
+        public static final MotorType RIGHT_POSITION = MotorType.kRearLeft;
 
         /** Initial speed Limiting (uses a number from 0.0 to 1.0 to set a maximum speed) */
         public static final double INITIAL_MAX_DRIVE_SPEED = 0.8; // 1.0;
         /** The percentage that the max drive speed is changed */
         public static final double DELTA_MAX_DRIVE_SPEED = 0.05;
-
-        public static final int MOTOR_CONTROLLER_TYPE = MotorControllerType.TALON;
-    }
-
-    public static final class MotorControllerType {
-        public static final int JAGUAR = 1;
-        public static final int TALON = 2;
     }
 
     protected static DriveTrain createDriveTrain() {
-        if (DriveMotors.MOTOR_CONTROLLER_TYPE == MotorControllerType.JAGUAR) {
-            return new JaguarDriveTrain();
-        }
+        // return new JaguarDriveTrain();
         return new TalonDriveTrain();
     }
 
@@ -209,12 +198,12 @@ public class Robot extends IterativeRobot {
 
     public static void updateStatus() {
         // Add our data to the "SmartDashboard".
-        Joystick driveJoystick = operatorInterface.getDriveJoystick();
+        LogitechController controller = operatorInterface.getController();
 
         // First, report the joystick values ...
-        SmartDashboard.putNumber("Drive Joystick X", driveJoystick.getX());
-        SmartDashboard.putNumber("Drive Joystick Y", driveJoystick.getY());
-        SmartDashboard.putNumber("Drive Joystick Twist", driveJoystick.getTwist());
+        SmartDashboard.putNumber("Drive Joystick X", controller.getX());
+        SmartDashboard.putNumber("Drive Joystick Y", controller.getY());
+        SmartDashboard.putNumber("Drive Joystick Twist", controller.getTwist());
 
         // Then, report the drive train status (e.g., motor speeds) ...
         driveTrain.updateStatus();
