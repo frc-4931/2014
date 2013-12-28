@@ -116,15 +116,15 @@ public class Robot extends IterativeRobot {
         print("Entering autonomous mode");
         // We could decide which autonomous command we should use, but use one for now ...
         autonomousCommand = new DriveForwardAndBackward();
+        // Schedule the autonomous command that should run until completion ...
+        printDebug("Running autonomous operation " + autonomousCommand.getName() + "...");
+        autonomousCommand.start();
     }
 
     /**
      * This function is called periodically during autonomous.
      */
     public void autonomousPeriodic() {
-        // Schedule the autonomous command that should run until completion ...
-        printDebug("Running autonomous operation " + autonomousCommand.getName() + "...");
-        autonomousCommand.start();
     }
 
     /**
@@ -201,9 +201,7 @@ public class Robot extends IterativeRobot {
         LogitechController controller = operatorInterface.getController();
 
         // First, report the joystick values ...
-        SmartDashboard.putNumber("Drive Joystick X", controller.getX());
-        SmartDashboard.putNumber("Drive Joystick Y", controller.getY());
-        SmartDashboard.putNumber("Drive Joystick Twist", controller.getTwist());
+        controller.updateStatus();
 
         // Then, report the drive train status (e.g., motor speeds) ...
         driveTrain.updateStatus();
