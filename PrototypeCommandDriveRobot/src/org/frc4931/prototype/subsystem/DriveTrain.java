@@ -27,7 +27,7 @@ public abstract class DriveTrain extends Subsystem {
     protected final SpeedController rightMotor;
     private final RobotDrive drive;
 
-    private double speedFactor = MAX_SPEED_FACTOR;
+    private volatile double speedFactor = MAX_SPEED_FACTOR;
 
     protected DriveTrain( SpeedController leftMotor,
                           SpeedController rightMotor ) {
@@ -45,6 +45,7 @@ public abstract class DriveTrain extends Subsystem {
 
     protected void initDefaultCommand() {
         setDefaultCommand(new TankDriveWithJoysticks());
+        // setDefaultCommand(new ArcadeDriveWithJoystick());
     }
 
     /**
@@ -57,7 +58,7 @@ public abstract class DriveTrain extends Subsystem {
      *        power)
      */
     public void driveStraight( double speedFactor ) {
-        drive.arcadeDrive(speedFactor, 0.0);
+        drive.tankDrive(speedFactor, speedFactor);
     }
 
     /**
@@ -77,9 +78,7 @@ public abstract class DriveTrain extends Subsystem {
      * </p>
      */
     public void driveWithArcadeJoystick() {
-        LogitechController controller = Robot.operatorInterface.getController();
-        controller.setStyle(DriveStyle.ARCADE_LEFT);
-        controller.drive(drive);
+        Robot.operatorInterface.getController().setStyle(DriveStyle.ARCADE_LEFT).drive(drive);
     }
 
     /**
@@ -89,9 +88,7 @@ public abstract class DriveTrain extends Subsystem {
      * </p>
      */
     public void driveWithTankJoysticks() {
-        LogitechController controller = Robot.operatorInterface.getController();
-        controller.setStyle(DriveStyle.TANK);
-        controller.drive(drive);
+        Robot.operatorInterface.getController().setStyle(DriveStyle.TANK).drive(drive);
     }
 
     /**
@@ -128,8 +125,9 @@ public abstract class DriveTrain extends Subsystem {
     protected abstract double currentRightSpeed();
 
     public void updateStatus() {
-        SmartDashboard.putNumber("Drive (Left)", currentLeftSpeed());
-        SmartDashboard.putNumber("Drive (Right)", currentRightSpeed());
+        SmartDashboard.putNumber("Drive Motor (Left)", currentLeftSpeed());
+        SmartDashboard.putNumber("Drive Motor (Right)", currentRightSpeed());
+        SmartDashboard.putNumber("Drive Max Speed", speedFactor);
     }
 
 }
