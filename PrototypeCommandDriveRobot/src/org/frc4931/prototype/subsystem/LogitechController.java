@@ -88,6 +88,15 @@ public class LogitechController extends Joystick {
             public static final int D_PAD_VERTICAL = 6;
         }
 
+        public static final class AxesOffsets {
+            public static final double LEFT_JOYSTICK_HORIZONTAL = 0.0d;
+            public static final double LEFT_JOYSTICK_VERTICAL = 0.0025d;
+            public static final double RIGHT_JOYSTICK_HORIZONTAL = 0.0d;
+            public static final double RIGHT_JOYSTICK_VERTICAL = -0.025d;
+            public static final double D_PAD_HORIZONTAL = 0.0d;
+            public static final double D_PAD_VERTICAL = 0.0d;
+        }
+
         public static final class Buttons {
             public static final int X = 1;
             public static final int A = 2;
@@ -112,6 +121,15 @@ public class LogitechController extends Joystick {
             public static final int RIGHT_JOYSTICK_HORIZONTAL = 4;
             public static final int RIGHT_JOYSTICK_VERTICAL = 5;
             public static final int RIGHT_TRIGGER = 6;
+        }
+
+        public static final class AxesOffsets {
+            public static final double LEFT_JOYSTICK_HORIZONTAL = 0.0d;
+            public static final double LEFT_JOYSTICK_VERTICAL = 0.0d;
+            public static final double LEFT_TRIGGER = 0.0d;
+            public static final double RIGHT_JOYSTICK_HORIZONTAL = 0.0d;
+            public static final double RIGHT_JOYSTICK_VERTICAL = 0.0d;
+            public static final double RIGHT_TRIGGER = 0.0d;
         }
 
         public static final class Buttons {
@@ -218,6 +236,8 @@ public class LogitechController extends Joystick {
     private final Button backButton;
     private final Button startButton;
 
+    private final double[] joystickOffset = new double[6];
+
     /** The style of drive, which can be changed at any time. */
     private DriveStyle style = DEFAULT_STYLE;
 
@@ -273,6 +293,12 @@ public class LogitechController extends Joystick {
             this.rtButton = null;
             this.backButton = new JoystickButton(this, XMode.Buttons.BACK);
             this.startButton = new JoystickButton(this, XMode.Buttons.START);
+            this.joystickOffset[0] = XMode.AxesOffsets.LEFT_JOYSTICK_HORIZONTAL;
+            this.joystickOffset[1] = XMode.AxesOffsets.LEFT_JOYSTICK_VERTICAL;
+            this.joystickOffset[2] = XMode.AxesOffsets.LEFT_TRIGGER;
+            this.joystickOffset[3] = XMode.AxesOffsets.RIGHT_JOYSTICK_HORIZONTAL;
+            this.joystickOffset[4] = XMode.AxesOffsets.RIGHT_JOYSTICK_VERTICAL;
+            this.joystickOffset[5] = XMode.AxesOffsets.RIGHT_TRIGGER;
         } else {
             this.xButton = new JoystickButton(this, DMode.Buttons.X);
             this.yButton = new JoystickButton(this, DMode.Buttons.Y);
@@ -284,6 +310,12 @@ public class LogitechController extends Joystick {
             this.rtButton = new JoystickButton(this, DMode.Buttons.RT);
             this.backButton = new JoystickButton(this, DMode.Buttons.BACK);
             this.startButton = new JoystickButton(this, DMode.Buttons.START);
+            this.joystickOffset[0] = DMode.AxesOffsets.LEFT_JOYSTICK_HORIZONTAL;
+            this.joystickOffset[1] = DMode.AxesOffsets.LEFT_JOYSTICK_VERTICAL;
+            this.joystickOffset[2] = DMode.AxesOffsets.RIGHT_JOYSTICK_HORIZONTAL;
+            this.joystickOffset[3] = DMode.AxesOffsets.RIGHT_JOYSTICK_VERTICAL;
+            this.joystickOffset[4] = DMode.AxesOffsets.D_PAD_HORIZONTAL;
+            this.joystickOffset[5] = DMode.AxesOffsets.D_PAD_VERTICAL;
         }
         // Set the style, which will instantiate the driveLogic instance ...
         this.setStyle(driveStyle);
@@ -317,7 +349,7 @@ public class LogitechController extends Joystick {
      * @return this controller instance to allow for chaining additional methods; never null
      */
     public LogitechController setStyle( DriveStyle driveStyle ) {
-        if (this.style.equals(driveStyle)) {
+        if (this.style != null && this.driveLogic != null && this.style.equals(driveStyle)) {
             // We're not changing the drive style, so we're done ...
             return this;
         }
@@ -342,6 +374,7 @@ public class LogitechController extends Joystick {
                 this.driveLogic = new DModeArcadeRightDriveLogic();
             }
         }
+        System.out.println("" + mode + "," + style);
         return this;
     }
 
@@ -447,11 +480,16 @@ public class LogitechController extends Joystick {
         return this.rtButton;
     }
 
+    public double getRawAxis( int axis ) {
+        return super.getRawAxis(axis) + joystickOffset[axis];
+    }
+
     /**
      * Write the status of this controller to the {@link SmartDashboard}.
      */
     public void updateStatus() {
         // Delegate to the particular kind of DriveLogic instance for the style and mode ...
+        SmartDashboard.putString("Drive Style", this.mode.toString());
         driveLogic.updateStatus();
     }
 

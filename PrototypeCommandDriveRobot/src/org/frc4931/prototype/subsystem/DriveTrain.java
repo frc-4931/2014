@@ -45,6 +45,7 @@ public abstract class DriveTrain extends Subsystem {
 
     protected void initDefaultCommand() {
         setDefaultCommand(new TankDriveWithJoysticks());
+        // setDefaultCommand(new ArcadeDriveWithJoystick());
     }
 
     /**
@@ -57,7 +58,7 @@ public abstract class DriveTrain extends Subsystem {
      *        power)
      */
     public void driveStraight( double speedFactor ) {
-        drive.arcadeDrive(speedFactor, 0.0);
+        drive.tankDrive(speedFactor, speedFactor);
     }
 
     /**

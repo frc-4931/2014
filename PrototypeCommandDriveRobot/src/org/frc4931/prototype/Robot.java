@@ -6,6 +6,7 @@
  */
 package org.frc4931.prototype;
 
+import org.frc4931.prototype.command.DriveAtSpeedForTime;
 import org.frc4931.prototype.command.DriveForwardAndBackward;
 import org.frc4931.prototype.command.RunTests;
 import org.frc4931.prototype.subsystem.DriveTrain;
@@ -88,11 +89,13 @@ public class Robot extends IterativeRobot {
      * The single {@link Command} instance that should be run in {@link #autonomousPeriodic() autonomous mode}.
      */
     private Command autonomousCommand;
+    private boolean autonomousStarted;
 
     /**
      * The single {@link Command} instance that should be run in {@link #testPeriodic() test mode}.
      */
     private Command testCommand;
+    private boolean testStarted;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -117,14 +120,20 @@ public class Robot extends IterativeRobot {
         // We could decide which autonomous command we should use, but use one for now ...
         autonomousCommand = new DriveForwardAndBackward();
         // Schedule the autonomous command that should run until completion ...
-        printDebug("Running autonomous operation " + autonomousCommand.getName() + "...");
-        autonomousCommand.start();
+        autonomousStarted = false;
     }
 
     /**
      * This function is called periodically during autonomous.
      */
     public void autonomousPeriodic() {
+        Scheduler.getInstance().run();
+        if (!autonomousStarted) {
+            print("Running autonomous operation " + autonomousCommand.getName() + "...");
+            autonomousStarted = true;
+            autonomousCommand.start();
+        }
+        updateStatus();
     }
 
     /**
@@ -148,15 +157,23 @@ public class Robot extends IterativeRobot {
      */
     public void testInit() {
         print("Entering test mode");
+        testStarted = false;
         testCommand = new RunTests();
+        testCommand = new DriveAtSpeedForTime(1.0, 3.0d);
+        enableVerboseOutput(true);
     }
 
     /**
      * This function is called periodically during test mode.
      */
     public void testPeriodic() {
-        printDebug("Running tests.");
-        testCommand.start();
+        Scheduler.getInstance().run();
+        updateStatus();
+        if (!testStarted) {
+            testStarted = true;
+            printDebug("Running tests.");
+            testCommand.start();
+        }
     }
 
     /**

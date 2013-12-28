@@ -6,8 +6,10 @@
  */
 package org.frc4931.prototype;
 
+import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
 import org.frc4931.prototype.command.DecreaseMaxDriveSpeed;
 import org.frc4931.prototype.command.IncreaseMaxDriveSpeed;
+import org.frc4931.prototype.command.TankDriveWithJoysticks;
 import org.frc4931.prototype.command.VerboseOutputToggle;
 import org.frc4931.prototype.subsystem.LogitechController;
 import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
@@ -29,6 +31,8 @@ public final class OperatorInterface {
         controller.getBButton().whenPressed(new IncreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
         controller.getAButton().whenPressed(new DecreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
         controller.getYButton().whenPressed(new VerboseOutputToggle());
+        controller.getBackButton().whenPressed(new ArcadeDriveWithJoystick());
+        controller.getStartButton().whenPressed(new TankDriveWithJoysticks());
     }
 
     public LogitechController getController() {

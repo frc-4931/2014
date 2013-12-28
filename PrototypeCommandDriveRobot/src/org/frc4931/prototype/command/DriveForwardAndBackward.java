@@ -19,5 +19,6 @@ public class DriveForwardAndBackward extends CommandGroup {
         addSequential(new DriveAtSpeedForTime(0.5, 3.0d)); // drive forward at 50% power for 3 seconds
         addSequential(new WaitCommand(5.0d)); // wait for 5 seconds
         addSequential(new DriveAtSpeedForTime(-0.5, 3.0d)); // drive backward at 50% power for 3 seconds
+        addSequential(new TankDriveWithJoysticks());
     }
 }
