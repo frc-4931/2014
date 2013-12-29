@@ -88,15 +88,6 @@ public class LogitechController extends Joystick {
             public static final int D_PAD_VERTICAL = 6;
         }
 
-        public static final class AxesOffsets {
-            public static final double LEFT_JOYSTICK_HORIZONTAL = 0.0d;
-            public static final double LEFT_JOYSTICK_VERTICAL = 0.0025d;
-            public static final double RIGHT_JOYSTICK_HORIZONTAL = 0.0d;
-            public static final double RIGHT_JOYSTICK_VERTICAL = -0.025d;
-            public static final double D_PAD_HORIZONTAL = 0.0d;
-            public static final double D_PAD_VERTICAL = 0.0d;
-        }
-
         public static final class Buttons {
             public static final int X = 1;
             public static final int A = 2;
@@ -121,15 +112,6 @@ public class LogitechController extends Joystick {
             public static final int RIGHT_JOYSTICK_HORIZONTAL = 4;
             public static final int RIGHT_JOYSTICK_VERTICAL = 5;
             public static final int RIGHT_TRIGGER = 6;
-        }
-
-        public static final class AxesOffsets {
-            public static final double LEFT_JOYSTICK_HORIZONTAL = 0.0d;
-            public static final double LEFT_JOYSTICK_VERTICAL = 0.0d;
-            public static final double LEFT_TRIGGER = 0.0d;
-            public static final double RIGHT_JOYSTICK_HORIZONTAL = 0.0d;
-            public static final double RIGHT_JOYSTICK_VERTICAL = 0.0d;
-            public static final double RIGHT_TRIGGER = 0.0d;
         }
 
         public static final class Buttons {
@@ -236,7 +218,10 @@ public class LogitechController extends Joystick {
     private final Button backButton;
     private final Button startButton;
 
-    private final double[] joystickOffset = new double[6];
+    /**
+     * The error corrections for the joystick axes.
+     */
+    private final double[] axisErrors = new double[7];
 
     /** The style of drive, which can be changed at any time. */
     private DriveStyle style = DEFAULT_STYLE;
@@ -293,12 +278,6 @@ public class LogitechController extends Joystick {
             this.rtButton = null;
             this.backButton = new JoystickButton(this, XMode.Buttons.BACK);
             this.startButton = new JoystickButton(this, XMode.Buttons.START);
-            this.joystickOffset[0] = XMode.AxesOffsets.LEFT_JOYSTICK_HORIZONTAL;
-            this.joystickOffset[1] = XMode.AxesOffsets.LEFT_JOYSTICK_VERTICAL;
-            this.joystickOffset[2] = XMode.AxesOffsets.LEFT_TRIGGER;
-            this.joystickOffset[3] = XMode.AxesOffsets.RIGHT_JOYSTICK_HORIZONTAL;
-            this.joystickOffset[4] = XMode.AxesOffsets.RIGHT_JOYSTICK_VERTICAL;
-            this.joystickOffset[5] = XMode.AxesOffsets.RIGHT_TRIGGER;
         } else {
             this.xButton = new JoystickButton(this, DMode.Buttons.X);
             this.yButton = new JoystickButton(this, DMode.Buttons.Y);
@@ -310,12 +289,6 @@ public class LogitechController extends Joystick {
             this.rtButton = new JoystickButton(this, DMode.Buttons.RT);
             this.backButton = new JoystickButton(this, DMode.Buttons.BACK);
             this.startButton = new JoystickButton(this, DMode.Buttons.START);
-            this.joystickOffset[0] = DMode.AxesOffsets.LEFT_JOYSTICK_HORIZONTAL;
-            this.joystickOffset[1] = DMode.AxesOffsets.LEFT_JOYSTICK_VERTICAL;
-            this.joystickOffset[2] = DMode.AxesOffsets.RIGHT_JOYSTICK_HORIZONTAL;
-            this.joystickOffset[3] = DMode.AxesOffsets.RIGHT_JOYSTICK_VERTICAL;
-            this.joystickOffset[4] = DMode.AxesOffsets.D_PAD_HORIZONTAL;
-            this.joystickOffset[5] = DMode.AxesOffsets.D_PAD_VERTICAL;
         }
         // Set the style, which will instantiate the driveLogic instance ...
         this.setStyle(driveStyle);
@@ -374,7 +347,6 @@ public class LogitechController extends Joystick {
                 this.driveLogic = new DModeArcadeRightDriveLogic();
             }
         }
-        System.out.println("" + mode + "," + style);
         return this;
     }
 
@@ -481,15 +453,26 @@ public class LogitechController extends Joystick {
     }
 
     public double getRawAxis( int axis ) {
-        return super.getRawAxis(axis) + joystickOffset[axis];
+        return super.getRawAxis(axis) + axisErrors[axis - 1];
+    }
+
+    /**
+     * Read all of the axis values to determine the error values, and then record the corrections for each of these axes. This
+     * method should be called only when the controller axes are physically in their neutral position.
+     */
+    public void zeroAxisReadings() {
+        for (int i = 1; i <= 6; ++i) {
+            axisErrors[i - 1] = -super.getRawAxis(i);
+        }
     }
 
     /**
      * Write the status of this controller to the {@link SmartDashboard}.
      */
     public void updateStatus() {
+        SmartDashboard.putString("Controller Mode", this.mode.toString());
+        SmartDashboard.putString("Drive Style", this.style.toString());
         // Delegate to the particular kind of DriveLogic instance for the style and mode ...
-        SmartDashboard.putString("Drive Style", this.mode.toString());
         driveLogic.updateStatus();
     }
 
@@ -518,66 +501,90 @@ public class LogitechController extends Joystick {
 
     protected final class DModeTankDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.tankDrive(ctrl(), DMode.Axes.LEFT_JOYSTICK_VERTICAL, ctrl(), DMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            double move = ctrl().getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(DMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            robotDrive.tankDrive(move, turn, true);
         }
 
         public void updateStatus() {
             SmartDashboard.putNumber("Joystick (left)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (right)", getRawAxis(DMode.Axes.RIGHT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (move)", 0.0f);
+            SmartDashboard.putNumber("Joystick (turn)", 0.0f);
         }
     }
 
     protected final class DModeArcadeLeftDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.arcadeDrive(ctrl(), DMode.Axes.LEFT_JOYSTICK_VERTICAL, ctrl(), DMode.Axes.LEFT_JOYSTICK_HORIZONTAL);
+            double move = ctrl().getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL);
+            robotDrive.arcadeDrive(move, turn, true);
         }
 
         public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (forward)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (left)", 0.0f);
+            SmartDashboard.putNumber("Joystick (right)", 0.0f);
+            SmartDashboard.putNumber("Joystick (move)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (turn)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
     protected final class DModeArcadeRightDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.arcadeDrive(ctrl(), DMode.Axes.RIGHT_JOYSTICK_VERTICAL, ctrl(), DMode.Axes.RIGHT_JOYSTICK_HORIZONTAL);
+            double move = ctrl().getRawAxis(DMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(DMode.Axes.RIGHT_JOYSTICK_HORIZONTAL);
+            robotDrive.arcadeDrive(move, turn, true);
         }
 
         public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (forward)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (left)", 0.0f);
+            SmartDashboard.putNumber("Joystick (right)", 0.0f);
+            SmartDashboard.putNumber("Joystick (move)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (turn)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
     protected final class XModeTankDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.tankDrive(ctrl(), XMode.Axes.LEFT_JOYSTICK_VERTICAL, ctrl(), XMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            double move = ctrl().getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            robotDrive.tankDrive(move, turn, true);
         }
 
         public void updateStatus() {
             SmartDashboard.putNumber("Joystick (left)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (right)", getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (move)", 0.0f);
+            SmartDashboard.putNumber("Joystick (turn)", 0.0f);
         }
     }
 
     protected final class XModeArcadeLeftDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.arcadeDrive(ctrl(), XMode.Axes.LEFT_JOYSTICK_VERTICAL, ctrl(), XMode.Axes.LEFT_JOYSTICK_HORIZONTAL);
+            double move = ctrl().getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL);
+            robotDrive.arcadeDrive(move, turn, true);
         }
 
         public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (forward)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (left)", 0.0f);
+            SmartDashboard.putNumber("Joystick (right)", 0.0f);
+            SmartDashboard.putNumber("Joystick (move)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (turn)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
     protected final class XModeArcadeRightDriveLogic extends DriveLogic {
         public void drive( RobotDrive robotDrive ) {
-            robotDrive.arcadeDrive(ctrl(), XMode.Axes.RIGHT_JOYSTICK_VERTICAL, ctrl(), XMode.Axes.RIGHT_JOYSTICK_HORIZONTAL);
+            double move = ctrl().getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL);
+            double turn = ctrl().getRawAxis(XMode.Axes.RIGHT_JOYSTICK_HORIZONTAL);
+            robotDrive.arcadeDrive(move, turn, true);
         }
 
         public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (forward)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            SmartDashboard.putNumber("Joystick (left)", 0.0f);
+            SmartDashboard.putNumber("Joystick (right)", 0.0f);
+            SmartDashboard.putNumber("Joystick (move)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
             SmartDashboard.putNumber("Joystick (turn)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }

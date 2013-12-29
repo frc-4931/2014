@@ -19,17 +19,20 @@ public class ArcadeDriveWithJoystick extends CommandBase {
         requires(Robot.driveTrain);
     }
 
+    protected void initialize() {
+        // Robot.printDebug(toString());
+    }
+
     protected void execute() {
-        Robot.printDebug(toString());
         Robot.driveTrain.driveWithArcadeJoystick();
     }
 
     protected boolean isFinished() {
-        return false; // never finishes
+        return true;
     }
 
     protected void end() {
-        Robot.driveTrain.stopAllMotors();
+        // do nothing
     }
 
     public String toString() {

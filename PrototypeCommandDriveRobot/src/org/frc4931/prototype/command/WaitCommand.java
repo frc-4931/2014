@@ -20,8 +20,11 @@ public class WaitCommand extends CommandBase {
         setTimeout(timeInSeconds);
     }
 
+    protected void initialize() {
+        Robot.print(toString());
+    }
+
     protected void execute() {
-        Robot.printDebug(toString());
     }
 
     protected boolean isFinished() {
@@ -29,6 +32,7 @@ public class WaitCommand extends CommandBase {
     }
 
     protected void end() {
+        // do nothing
     }
 
     public String toString() {

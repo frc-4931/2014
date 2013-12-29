@@ -14,19 +14,19 @@ import org.frc4931.prototype.Robot;
  * @see Robot#printDebug(String)
  * @see Robot#print(String)
  */
-public class VerboseOutputSet extends CommandBase {
+public class SetVerboseOutput extends CommandBase {
 
     private final boolean enable;
 
-    public VerboseOutputSet( boolean enable ) {
+    public SetVerboseOutput( boolean enable ) {
         super();
         this.enable = enable;
     }
 
     protected void execute() {
-        if (!enable) Robot.printDebug(toString());
+        if (!enable) Robot.print(toString());
         Robot.enableVerboseOutput(enable);
-        if (enable) Robot.printDebug(toString());
+        if (enable) Robot.print(toString());
     }
 
     protected boolean isFinished() {
@@ -34,6 +34,7 @@ public class VerboseOutputSet extends CommandBase {
     }
 
     protected void end() {
+        // do nothing
     }
 
     public String toString() {

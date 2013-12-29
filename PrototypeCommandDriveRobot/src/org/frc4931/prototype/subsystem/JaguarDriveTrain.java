@@ -9,6 +9,7 @@ package org.frc4931.prototype.subsystem;
 import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
 import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
 /**
  * The drive train that uses two {@link Jaguar} motors, and which sets up and uses an {@link ArcadeDriveWithJoystick} command by
@@ -34,5 +35,10 @@ public class JaguarDriveTrain extends DriveTrain {
 
     protected double currentRightSpeed() {
         return rightMotor().getSpeed();
+    }
+
+    protected void addInLiveWindow( String subsystemName ) {
+        LiveWindow.addActuator(subsystemName, "left motor", leftMotor());
+        LiveWindow.addActuator(subsystemName, "right motor", rightMotor());
     }
 }

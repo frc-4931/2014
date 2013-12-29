@@ -43,9 +43,33 @@ public abstract class DriveTrain extends Subsystem {
         setMaxDriveSpeed(Robot.DriveMotors.INITIAL_MAX_DRIVE_SPEED);
     }
 
+    /**
+     * Initialize the default command that will be run whenever no commands for this subsystem are enqueued.
+     */
     protected void initDefaultCommand() {
         setDefaultCommand(new TankDriveWithJoysticks());
-        // setDefaultCommand(new ArcadeDriveWithJoystick());
+    }
+
+    /**
+     * Change the default command that will be run whenever no commands for this subsystem are enqueued, using an arcade drive
+     * style.
+     * 
+     * @param style the drive style that should be used
+     */
+    public void changeDefaultDriveStyleTo( DriveStyle style ) {
+        setDefaultCommand(new ArcadeDriveWithJoystick());
+    }
+
+    /**
+     * Change the drive style for the default command that will be run whenever no commands for this subsystem are enqueued, using
+     * a tank drive style.
+     */
+    public void changeDefaultDriveStyle() {
+        if (getDefaultCommand() instanceof TankDriveWithJoysticks) {
+            setDefaultCommand(new ArcadeDriveWithJoystick());
+        } else {
+            setDefaultCommand(new TankDriveWithJoysticks());
+        }
     }
 
     /**
@@ -129,5 +153,11 @@ public abstract class DriveTrain extends Subsystem {
         SmartDashboard.putNumber("Drive Motor (Right)", currentRightSpeed());
         SmartDashboard.putNumber("Drive Max Speed", speedFactor);
     }
+
+    public void addInLiveWindow() {
+        addInLiveWindow("Drive train");
+    }
+
+    protected abstract void addInLiveWindow( String subsystemName );
 
 }
