@@ -12,7 +12,7 @@ package org.frc4931.prototype.command;
 public class DecreaseMaxDriveSpeed extends ChangeMaxDriveSpeed {
 
     public DecreaseMaxDriveSpeed( double delta ) {
-        super(DecreaseMaxDriveSpeed.class.getName(), -delta);
+        super(-delta);
     }
 
     public String toString() {

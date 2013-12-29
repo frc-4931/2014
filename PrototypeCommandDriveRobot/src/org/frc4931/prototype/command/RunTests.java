@@ -15,16 +15,23 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 public class RunTests extends CommandGroup {
 
     public RunTests() {
+        // First, determine whether we're logging verbose output already ...
         boolean wasVerbose = Robot.isVerboseOutputEnabled();
-        addSequential(new VerboseOutputSet(true));
+
+        // Then always enable verbose logging for the tests ...
+        addSequential(new SetVerboseOutput(true));
 
         // Add these in sequence, though we can also add some commands or groups in parallel
-        addSequential(new DriveAtSpeedForTime(1.0, 3.0d)); // drive forward at 100% power for 3 seconds
-        addSequential(new DriveAtSpeedForTime(0.5, 3.0d)); // drive forward at 50% power for 3 seconds
+        addSequential(new DriveAtSpeedForTime(1.00, 3.0d)); // drive forward at 100% power for 3 seconds
+        addSequential(new DriveAtSpeedForTime(0.50, 3.0d)); // drive forward at 50% power for 3 seconds
+        addSequential(new DriveAtSpeedForTime(0.25, 3.0d)); // drive forward at 25% power for 3 seconds
+        addSequential(new StopDriving());
         addSequential(new WaitCommand(3.0d)); // wait for 3 seconds
+        addSequential(new DriveAtSpeedForTime(-0.50, 3.0d)); // drive backward at 50% power for 3 seconds
+        addSequential(new StopDriving());
 
-        // Switch verbose back ...
-        if (!wasVerbose) addSequential(new VerboseOutputSet(false));
+        // Switch verbose back to what it was before we ran the tests ...
+        addSequential(new SetVerboseOutput(wasVerbose));
     }
 
     public String toString() {

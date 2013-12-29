@@ -7,19 +7,17 @@
 package org.frc4931.prototype.command;
 
 import org.frc4931.prototype.Robot;
+import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
 
 /**
- * A abstract command used to increase or decrease the maximum speed of the robot.
- * 
- * @see IncreaseMaxDriveSpeed
- * @see DecreaseMaxDriveSpeed
+ * A command that is used to set the drive style to the specified style.
  */
-public abstract class ChangeMaxDriveSpeed extends CommandBase {
+public class SetDriveStyle extends CommandBase {
 
-    protected final double delta;
+    private final DriveStyle style;
 
-    protected ChangeMaxDriveSpeed( double delta ) {
-        this.delta = delta;
+    public SetDriveStyle( DriveStyle style ) {
+        this.style = style;
         requires(Robot.driveTrain);
     }
 
@@ -28,7 +26,7 @@ public abstract class ChangeMaxDriveSpeed extends CommandBase {
     }
 
     protected void execute() {
-        Robot.driveTrain.changeMaxDriveSpeed(delta);
+        Robot.driveTrain.changeDefaultDriveStyleTo(style);
     }
 
     protected boolean isFinished() {
@@ -36,6 +34,10 @@ public abstract class ChangeMaxDriveSpeed extends CommandBase {
     }
 
     protected void end() {
-        // nothing to do
+        // do nothing
+    }
+
+    public String toString() {
+        return "Change drive style to " + style;
     }
 }

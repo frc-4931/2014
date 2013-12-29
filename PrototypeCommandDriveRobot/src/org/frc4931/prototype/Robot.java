@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -83,19 +85,9 @@ public class Robot extends IterativeRobot {
     /**
      * Flag that states whether debug/verbose messages should be written
      */
-    private static boolean verbose;
+    private static volatile boolean verbose;
 
-    /**
-     * The single {@link Command} instance that should be run in {@link #autonomousPeriodic() autonomous mode}.
-     */
-    private Command autonomousCommand;
-    private boolean autonomousStarted;
-
-    /**
-     * The single {@link Command} instance that should be run in {@link #testPeriodic() test mode}.
-     */
-    private Command testCommand;
-    private boolean testStarted;
+    private SendableChooser autonomousCommandChooser;
 
     /**
      * This function is run when the robot is first started up and should be used for any initialization code.
@@ -108,8 +100,35 @@ public class Robot extends IterativeRobot {
         // Register each subsystem with the SmartDashboard so it can show what command(s) the subsystems are running
         SmartDashboard.putData(driveTrain);
 
+        // // Register each command with the SmartDashboard so it can show what commands are available to be run ...
+        // SmartDashboard.putData(new ArcadeDriveWithJoystick());
+        // SmartDashboard.putData(new DecreaseMaxDriveSpeed(0.05d));
+        // SmartDashboard.putData(new DriveAtSpeedForTime(0.5d, 1.0d));
+        // SmartDashboard.putData(new DriveForwardAndBackward());
+        // SmartDashboard.putData(new IncreaseMaxDriveSpeed(0.05d));
+        // SmartDashboard.putData(new RunTests());
+        // SmartDashboard.putData(new SetDriveStyle(DriveStyle.ARCADE_LEFT));
+        // SmartDashboard.putData(new SetDriveStyle(DriveStyle.TANK));
+        // SmartDashboard.putData(new SetVerboseOutput(true));
+        // SmartDashboard.putData(new SetVerboseOutput(false));
+        // SmartDashboard.putData(new StopDriving());
+        // SmartDashboard.putData(new TankDriveWithJoysticks());
+        // SmartDashboard.putData(new ToggleDriveStyle());
+        // SmartDashboard.putData(new ToggleVerboseOutput());
+        // SmartDashboard.putData(new WaitCommand(1.0d));
+        // SmartDashboard.putData(new ZeroControllerInputs());
+
         // Register the command scheduler ...
         SmartDashboard.putData(Scheduler.getInstance());
+
+        // Register with the SmartDashboard the ability to switch between the different autonomous commands ...
+        autonomousCommandChooser = new SendableChooser();
+        autonomousCommandChooser.addDefault("Drive forward-and-backward", new DriveForwardAndBackward());
+        autonomousCommandChooser.addObject("Drive forward for 5 seconds at 50% speed", new DriveAtSpeedForTime(0.5d, 5.0d));
+        autonomousCommandChooser.addObject("Run tests", new RunTests());
+
+        // Register the actuators and sensors with LiveWindow (used in test mode) ...
+        driveTrain.addInLiveWindow();
     }
 
     /**
@@ -117,10 +136,20 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousInit() {
         print("Entering autonomous mode");
-        // We could decide which autonomous command we should use, but use one for now ...
-        autonomousCommand = new DriveForwardAndBackward();
-        // Schedule the autonomous command that should run until completion ...
-        autonomousStarted = false;
+
+        // Use this command as the default ...
+        Command autonomousCommand = new DriveForwardAndBackward();
+        if (autonomousCommandChooser != null) {
+            // Decide via the SmartDashboard which autonomous command we should use ...
+            try {
+                Command selected = (Command)autonomousCommandChooser.getSelected();
+                if (selected != null) autonomousCommand = selected;
+            } catch (NullPointerException e) {
+                // This happens when there is no SmartDashboard running
+            }
+        }
+        print("Starting autonomous operation " + autonomousCommand.getName() + "...");
+        autonomousCommand.start();
     }
 
     /**
@@ -128,11 +157,6 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
-        if (!autonomousStarted) {
-            print("Running autonomous operation " + autonomousCommand.getName() + "...");
-            autonomousStarted = true;
-            autonomousCommand.start();
-        }
         updateStatus();
     }
 
@@ -140,8 +164,8 @@ public class Robot extends IterativeRobot {
      * This function is called once when operator control begins.
      */
     public void teleopInit() {
-        updateStatus();
         print("Entering teleop mode");
+        updateStatus();
     }
 
     /**
@@ -157,23 +181,13 @@ public class Robot extends IterativeRobot {
      */
     public void testInit() {
         print("Entering test mode");
-        testStarted = false;
-        testCommand = new RunTests();
-        testCommand = new DriveAtSpeedForTime(1.0, 3.0d);
-        enableVerboseOutput(true);
     }
 
     /**
      * This function is called periodically during test mode.
      */
     public void testPeriodic() {
-        Scheduler.getInstance().run();
-        updateStatus();
-        if (!testStarted) {
-            testStarted = true;
-            printDebug("Running tests.");
-            testCommand.start();
-        }
+        LiveWindow.run();
     }
 
     /**

@@ -7,24 +7,22 @@
 package org.frc4931.prototype.command;
 
 import org.frc4931.prototype.Robot;
-import org.frc4931.prototype.subsystem.DriveTrain;
 
 /**
- * A command that is used to drive with inputs coming from the single arcade-style joystick. This is created as the default
- * command in the {@link DriveTrain}.
+ * Toggle whether the program outputs verbose messages.
+ * 
+ * @see Robot#printDebug(String)
+ * @see Robot#print(String)
  */
-public class TankDriveWithJoysticks extends CommandBase {
+public class ToggleVerboseOutput extends CommandBase {
 
-    public TankDriveWithJoysticks() {
-        requires(Robot.driveTrain);
-    }
-
-    protected void initialize() {
-        // Robot.print(toString());
+    public ToggleVerboseOutput() {
+        super();
     }
 
     protected void execute() {
-        Robot.driveTrain.driveWithTankJoysticks();
+        Robot.print(toString());
+        Robot.toggleVerboseOutput();
     }
 
     protected boolean isFinished() {
@@ -36,6 +34,6 @@ public class TankDriveWithJoysticks extends CommandBase {
     }
 
     public String toString() {
-        return "Drive with tank-style joysticks";
+        return "Toggle debug outputs";
     }
 }

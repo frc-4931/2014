@@ -6,11 +6,11 @@
  */
 package org.frc4931.prototype;
 
-import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
 import org.frc4931.prototype.command.DecreaseMaxDriveSpeed;
 import org.frc4931.prototype.command.IncreaseMaxDriveSpeed;
-import org.frc4931.prototype.command.TankDriveWithJoysticks;
-import org.frc4931.prototype.command.VerboseOutputToggle;
+import org.frc4931.prototype.command.ToggleDriveStyle;
+import org.frc4931.prototype.command.ToggleVerboseOutput;
+import org.frc4931.prototype.command.ZeroControllerInputs;
 import org.frc4931.prototype.subsystem.LogitechController;
 import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
 import org.frc4931.prototype.subsystem.LogitechController.Mode;
@@ -30,9 +30,9 @@ public final class OperatorInterface {
         // Run these commands each time the button is pressed ...
         controller.getBButton().whenPressed(new IncreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
         controller.getAButton().whenPressed(new DecreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
-        controller.getYButton().whenPressed(new VerboseOutputToggle());
-        controller.getBackButton().whenPressed(new ArcadeDriveWithJoystick());
-        controller.getStartButton().whenPressed(new TankDriveWithJoysticks());
+        controller.getYButton().whenPressed(new ToggleVerboseOutput());
+        controller.getBackButton().whenPressed(new ToggleDriveStyle());
+        controller.getStartButton().whenPressed(new ZeroControllerInputs());
     }
 
     public LogitechController getController() {

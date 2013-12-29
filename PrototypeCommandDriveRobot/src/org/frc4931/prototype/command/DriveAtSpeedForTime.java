@@ -32,8 +32,11 @@ public class DriveAtSpeedForTime extends CommandBase {
         requires(Robot.driveTrain);
     }
 
+    protected void initialize() {
+        Robot.print(toString());
+    }
+
     protected void execute() {
-        Robot.printDebug(toString());
         Robot.driveTrain.driveStraight(speedFactor);
     }
 
@@ -42,7 +45,7 @@ public class DriveAtSpeedForTime extends CommandBase {
     }
 
     protected void end() {
-        Robot.driveTrain.stopAllMotors();
+        // Do nothing
     }
 
     public String toString() {

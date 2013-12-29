@@ -9,17 +9,14 @@ package org.frc4931.prototype.command;
 import org.frc4931.prototype.Robot;
 
 /**
- * A abstract command used to increase or decrease the maximum speed of the robot.
- * 
- * @see IncreaseMaxDriveSpeed
- * @see DecreaseMaxDriveSpeed
+ * Controls the drive train to stop all motors immediately.
  */
-public abstract class ChangeMaxDriveSpeed extends CommandBase {
+public class StopDriving extends CommandBase {
 
-    protected final double delta;
-
-    protected ChangeMaxDriveSpeed( double delta ) {
-        this.delta = delta;
+    /**
+     * Create a new command to stop the robot.
+     */
+    public StopDriving() {
         requires(Robot.driveTrain);
     }
 
@@ -28,14 +25,18 @@ public abstract class ChangeMaxDriveSpeed extends CommandBase {
     }
 
     protected void execute() {
-        Robot.driveTrain.changeMaxDriveSpeed(delta);
+        Robot.driveTrain.stopAllMotors();
     }
 
     protected boolean isFinished() {
-        return true; // finishes immediately
+        return true;
     }
 
     protected void end() {
-        // nothing to do
     }
+
+    public String toString() {
+        return "Stop all motors";
+    }
+
 }

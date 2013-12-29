@@ -6,6 +6,7 @@
  */
 package org.frc4931.prototype.command;
 
+import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 /**
@@ -17,8 +18,10 @@ public class DriveForwardAndBackward extends CommandGroup {
     public DriveForwardAndBackward() {
         // Add these in sequence, though we can also add some commands or groups in parallel
         addSequential(new DriveAtSpeedForTime(0.5, 3.0d)); // drive forward at 50% power for 3 seconds
+        addSequential(new StopDriving());
         addSequential(new WaitCommand(5.0d)); // wait for 5 seconds
         addSequential(new DriveAtSpeedForTime(-0.5, 3.0d)); // drive backward at 50% power for 3 seconds
-        addSequential(new TankDriveWithJoysticks());
+        addSequential(new StopDriving());
+        addSequential(new SetDriveStyle(DriveStyle.TANK));
     }
 }

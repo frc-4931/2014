@@ -9,30 +9,31 @@ package org.frc4931.prototype.command;
 import org.frc4931.prototype.Robot;
 
 /**
- * Toggle whether the program outputs verbose messages.
- * 
- * @see Robot#printDebug(String)
- * @see Robot#print(String)
+ * A command that is used to change the drive style to the specified style.
  */
-public class VerboseOutputToggle extends CommandBase {
+public class ToggleDriveStyle extends CommandBase {
 
-    public VerboseOutputToggle() {
-        super();
+    public ToggleDriveStyle() {
+        requires(Robot.driveTrain);
+    }
+
+    protected void initialize() {
+        Robot.print(toString());
     }
 
     protected void execute() {
-        Robot.printDebug(toString());
-        Robot.toggleVerboseOutput();
+        Robot.driveTrain.changeDefaultDriveStyle();
     }
 
     protected boolean isFinished() {
-        return true;
+        return true; // finishes immediately
     }
 
     protected void end() {
+        // do nothing
     }
 
     public String toString() {
-        return "Toggle debug outputs";
+        return "Toggling drive style";
     }
 }
