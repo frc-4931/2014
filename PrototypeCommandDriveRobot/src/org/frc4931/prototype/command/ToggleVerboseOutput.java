@@ -20,8 +20,11 @@ public class ToggleVerboseOutput extends CommandBase {
         super();
     }
 
-    protected void execute() {
+    protected void initialize() {
         Robot.print(toString());
+    }
+
+    protected void execute() {
         Robot.toggleVerboseOutput();
     }
 

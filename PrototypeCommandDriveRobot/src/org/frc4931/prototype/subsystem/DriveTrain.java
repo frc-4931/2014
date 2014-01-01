@@ -9,11 +9,12 @@ package org.frc4931.prototype.subsystem;
 import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
 import org.frc4931.prototype.command.TankDriveWithJoysticks;
-import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
+import org.frc4931.prototype.device.LogitechController.DriveStyle;
+import org.frc4931.prototype.device.Throttle;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.tables.ITable;
 
 /**
  * The drive train, which sets up and uses an {@link ArcadeDriveWithJoystick} command by default.
@@ -25,15 +26,18 @@ public abstract class DriveTrain extends Subsystem {
 
     protected final SpeedController leftMotor;
     protected final SpeedController rightMotor;
+    private final Throttle throttle;
     private final RobotDrive drive;
 
     private volatile double speedFactor = MAX_SPEED_FACTOR;
 
     protected DriveTrain( SpeedController leftMotor,
-                          SpeedController rightMotor ) {
+                          SpeedController rightMotor,
+                          Throttle throttle ) {
         // Set up the motors ...
         this.leftMotor = leftMotor;
         this.rightMotor = rightMotor;
+        this.throttle = throttle;
 
         // And the drive controller ...
         drive = new RobotDrive(leftMotor, rightMotor);
@@ -134,9 +138,11 @@ public abstract class DriveTrain extends Subsystem {
      * This can be called within commands.
      * </p>
      * 
-     * @param newSpeed the new maximum drive speed, between 0.0 and 1.0.
+     * @param newSpeed the new maximum drive speed, between 0.0 and 1.0; if negative, then 0.0 will be used; if greater than 1.0,
+     *        then 1.0 will be used.
      */
     public void setMaxDriveSpeed( double newSpeed ) {
+        Robot.print("Setting max drive speed to " + newSpeed);
         // Make sure the new speed is in range ...
         newSpeed = Math.max(newSpeed, MIN_SPEED_FACTOR);
         newSpeed = Math.min(newSpeed, MAX_SPEED_FACTOR);
@@ -144,20 +150,26 @@ public abstract class DriveTrain extends Subsystem {
         drive.setMaxOutput(newSpeed);
     }
 
+    public void checkThrottleForChange() {
+        if (throttle != null && throttle.hasChanged()) {
+            // The throttle has been moved, so set the max drive speed ...
+            setMaxDriveSpeed(throttle.getCurrentSpeed());
+        }
+    }
+
+    public void initTable( ITable table ) {
+        super.initTable(table);
+        ITable t = getTable();
+        if (t != null) {
+            t.putNumber("Motor (left)", currentLeftSpeed());
+            t.putNumber("Motor (right)", currentRightSpeed());
+            t.putNumber("Max speed", speedFactor);
+        }
+    }
+
     protected abstract double currentLeftSpeed();
 
     protected abstract double currentRightSpeed();
 
-    public void updateStatus() {
-        SmartDashboard.putNumber("Drive Motor (Left)", currentLeftSpeed());
-        SmartDashboard.putNumber("Drive Motor (Right)", currentRightSpeed());
-        SmartDashboard.putNumber("Drive Max Speed", speedFactor);
-    }
-
-    public void addInLiveWindow() {
-        addInLiveWindow("Drive train");
-    }
-
-    protected abstract void addInLiveWindow( String subsystemName );
-
+    public abstract void addInLiveWindow();
 }

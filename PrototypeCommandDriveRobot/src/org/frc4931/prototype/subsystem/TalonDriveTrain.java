@@ -8,6 +8,7 @@ package org.frc4931.prototype.subsystem;
 
 import org.frc4931.prototype.Robot;
 import org.frc4931.prototype.command.ArcadeDriveWithJoystick;
+import org.frc4931.prototype.device.Throttle;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
@@ -17,8 +18,13 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
  */
 public class TalonDriveTrain extends DriveTrain {
 
-    public TalonDriveTrain() {
-        super(new Talon(Robot.DriveMotors.LEFT_PORT), new Talon(Robot.DriveMotors.RIGHT_PORT));
+    /**
+     * Create a new instance of the drive train.
+     * 
+     * @param throttle the optional analog throttle; may be null if there is no analog throttle
+     */
+    public TalonDriveTrain( Throttle throttle ) {
+        super(new Talon(Robot.DriveMotors.LEFT_PORT), new Talon(Robot.DriveMotors.RIGHT_PORT), throttle);
     }
 
     protected Talon leftMotor() {
@@ -37,8 +43,8 @@ public class TalonDriveTrain extends DriveTrain {
         return rightMotor().getSpeed();
     }
 
-    protected void addInLiveWindow( String subsystemName ) {
-        LiveWindow.addActuator(subsystemName, "left motor", leftMotor());
-        LiveWindow.addActuator(subsystemName, "right motor", rightMotor());
+    public void addInLiveWindow() {
+        LiveWindow.addActuator(getName(), "left motor", leftMotor());
+        LiveWindow.addActuator(getName(), "right motor", rightMotor());
     }
 }

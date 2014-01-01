@@ -6,7 +6,7 @@
  */
 package org.frc4931.prototype.command;
 
-import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
+import org.frc4931.prototype.device.LogitechController.DriveStyle;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 /**
