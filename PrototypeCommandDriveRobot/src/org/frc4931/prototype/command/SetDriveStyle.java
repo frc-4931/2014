@@ -7,7 +7,7 @@
 package org.frc4931.prototype.command;
 
 import org.frc4931.prototype.Robot;
-import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
+import org.frc4931.prototype.device.LogitechController.DriveStyle;
 
 /**
  * A command that is used to set the drive style to the specified style.

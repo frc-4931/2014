@@ -4,13 +4,14 @@
  * must be accompanied by the FIRST BSD license file in the root directory of
  * the project.
  */
-package org.frc4931.prototype.subsystem;
+package org.frc4931.prototype.device;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.NamedSendable;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.tables.ITable;
 
 /**
  * Handle input from the Logitech Controller, which has two physical modes.
@@ -76,7 +77,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * <td>Right axis</td> </row>
  * </table>
  */
-public class LogitechController extends Joystick {
+public class LogitechController extends Joystick implements NamedSendable {
 
     protected static final class DMode {
         public static final class Axes {
@@ -203,6 +204,9 @@ public class LogitechController extends Joystick {
         }
     }
 
+    private final String name;
+    private ITable table;
+
     /** The mode is set upon construction and never changed */
     private final Mode mode;
 
@@ -229,23 +233,24 @@ public class LogitechController extends Joystick {
     /**
      * The specific implementation for the particular drive style and controller mode. This is set when the style is set, and by
      * having a specific implementation class for each combination we're able to set this once when the {@link #setStyle style is
-     * set} and simply delegate to it in the frequently-called {@link #drive(RobotDrive)} and {@link #updateStatus()} methods
-     * without having to check the drive style and the controller mode. This makes the {@link #drive(RobotDrive)} method faster
-     * since it has to do less work than if it first had to check the drive style and controller mode to determine the appropriate
-     * drive operation to call.
+     * set} and simply delegate to it in the frequently-called {@link #drive(RobotDrive)} method without having to check the drive
+     * style and the controller mode. This makes the {@link #drive(RobotDrive)} method faster since it has to do less work than if
+     * it first had to check the drive style and controller mode to determine the appropriate drive operation to call.
      */
     private DriveLogic driveLogic;
 
     /**
      * Construct an instance of a Logitech Controller that uses the specified controller mode and the default drive style.
      * 
+     * @param name the name of this controller
      * @param port The number of the USB port on the driver station that the joystick is plugged into.
      * @param mode the mode of operation, either {@link Mode#D} or {@link Mode#X}; if <code>null</code>, the
      *        {@link LogitechController#DEFAULT_MODE default mode} is used
      */
-    public LogitechController( int port,
+    public LogitechController( String name,
+                               int port,
                                Mode mode ) {
-        this(port, mode, null);
+        this(name, port, mode, null);
     }
 
     /**
@@ -254,6 +259,7 @@ public class LogitechController extends Joystick {
      * calling <code>controller.setStyle(style)</code> (or
      * <code>controller = new LogitechController(port,mode).setStyle(style)</code>).
      * 
+     * @param name the name of this controller
      * @param port The number of the USB port on the driver station that the joystick is plugged into.
      * @param mode the mode of operation, either {@link Mode#D} or {@link Mode#X}; if <code>null</code>, the
      *        {@link LogitechController#DEFAULT_MODE default mode} is used
@@ -261,10 +267,12 @@ public class LogitechController extends Joystick {
      *        {@link DriveStyle#ARCADE_RIGHT}; if <code>null</code>, the {@link LogitechController#DEFAULT_STYLE default style} is
      *        used
      */
-    public LogitechController( int port,
+    public LogitechController( String name,
+                               int port,
                                Mode mode,
                                DriveStyle driveStyle ) {
         super(port);
+        this.name = name;
         this.mode = mode != null ? mode : DEFAULT_MODE;
         // Create the buttons based upon the controller mode ...
         if (Mode.X.equals(mode)) {
@@ -466,18 +474,29 @@ public class LogitechController extends Joystick {
         }
     }
 
-    /**
-     * Write the status of this controller to the {@link SmartDashboard}.
-     */
-    public void updateStatus() {
-        SmartDashboard.putString("Controller Mode", this.mode.toString());
-        SmartDashboard.putString("Drive Style", this.style.toString());
-        // Delegate to the particular kind of DriveLogic instance for the style and mode ...
-        driveLogic.updateStatus();
+    public String getName() {
+        return name;
+    }
+
+    public String getSmartDashboardType() {
+        return getName();
+    }
+
+    public ITable getTable() {
+        return this.table;
+    }
+
+    public void initTable( ITable table ) {
+        this.table = table;
+        if (this.table != null) {
+            this.table.putString("Mode", this.mode.toString());
+            this.table.putString("Style", this.style.toString());
+            driveLogic.update(this.table);
+        }
     }
 
     public String toString() {
-        return "Logitech Controller (mode=" + mode + ", style=" + style + ")";
+        return "Logitech Controller \"" + name + "\" (mode=" + mode + ", style=" + style + ")";
     }
 
     /**
@@ -486,7 +505,7 @@ public class LogitechController extends Joystick {
     protected abstract class DriveLogic {
         public abstract void drive( RobotDrive robotDrive );
 
-        public abstract void updateStatus();
+        public abstract void update( ITable table );
 
         /**
          * Return the {@link LogitechController} instance that owns this logic instance. This is a convenience method for
@@ -506,11 +525,11 @@ public class LogitechController extends Joystick {
             robotDrive.tankDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (right)", getRawAxis(DMode.Axes.RIGHT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (move)", 0.0f);
-            SmartDashboard.putNumber("Joystick (turn)", 0.0f);
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            table.putNumber("Tank-Right", getRawAxis(DMode.Axes.RIGHT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Move", 0.0f);
+            table.putNumber("Arcade-Turn", 0.0f);
         }
     }
 
@@ -521,11 +540,11 @@ public class LogitechController extends Joystick {
             robotDrive.arcadeDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", 0.0f);
-            SmartDashboard.putNumber("Joystick (right)", 0.0f);
-            SmartDashboard.putNumber("Joystick (move)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (turn)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", 0.0f);
+            table.putNumber("Tank-Right", 0.0f);
+            table.putNumber("Arcade-Move", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Turn", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
@@ -536,11 +555,11 @@ public class LogitechController extends Joystick {
             robotDrive.arcadeDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", 0.0f);
-            SmartDashboard.putNumber("Joystick (right)", 0.0f);
-            SmartDashboard.putNumber("Joystick (move)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (turn)", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", 0.0f);
+            table.putNumber("Tank-Right", 0.0f);
+            table.putNumber("Arcade-Move", getRawAxis(DMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Turn", getRawAxis(DMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
@@ -551,11 +570,11 @@ public class LogitechController extends Joystick {
             robotDrive.tankDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (right)", getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (move)", 0.0f);
-            SmartDashboard.putNumber("Joystick (turn)", 0.0f);
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            table.putNumber("Tank-Right", getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Move", 0.0f);
+            table.putNumber("Arcade-Turn", 0.0f);
         }
     }
 
@@ -566,11 +585,11 @@ public class LogitechController extends Joystick {
             robotDrive.arcadeDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", 0.0f);
-            SmartDashboard.putNumber("Joystick (right)", 0.0f);
-            SmartDashboard.putNumber("Joystick (move)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (turn)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", 0.0f);
+            table.putNumber("Tank-Right", 0.0f);
+            table.putNumber("Arcade-Move", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Turn", getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
         }
     }
 
@@ -581,11 +600,11 @@ public class LogitechController extends Joystick {
             robotDrive.arcadeDrive(move, turn, true);
         }
 
-        public void updateStatus() {
-            SmartDashboard.putNumber("Joystick (left)", 0.0f);
-            SmartDashboard.putNumber("Joystick (right)", 0.0f);
-            SmartDashboard.putNumber("Joystick (move)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_VERTICAL));
-            SmartDashboard.putNumber("Joystick (turn)", getRawAxis(XMode.Axes.LEFT_JOYSTICK_HORIZONTAL));
+        public void update( ITable table ) {
+            table.putNumber("Tank-Left", 0.0f);
+            table.putNumber("Tank-Right", 0.0f);
+            table.putNumber("Arcade-Move", getRawAxis(XMode.Axes.RIGHT_JOYSTICK_VERTICAL));
+            table.putNumber("Arcade-Turn", getRawAxis(XMode.Axes.RIGHT_JOYSTICK_HORIZONTAL));
         }
     }
 

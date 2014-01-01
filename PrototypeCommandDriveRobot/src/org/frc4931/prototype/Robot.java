@@ -9,8 +9,8 @@ package org.frc4931.prototype;
 import org.frc4931.prototype.command.DriveAtSpeedForTime;
 import org.frc4931.prototype.command.DriveForwardAndBackward;
 import org.frc4931.prototype.command.RunTests;
+import org.frc4931.prototype.device.Throttle;
 import org.frc4931.prototype.subsystem.DriveTrain;
-import org.frc4931.prototype.subsystem.LogitechController;
 import org.frc4931.prototype.subsystem.TalonDriveTrain;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
@@ -42,6 +42,9 @@ public class Robot extends IterativeRobot {
         public static final int PORT = 1;
     }
 
+    public static final class Inputs {
+    }
+
     /**
      * The drive motors' output ports and related constants.
      */
@@ -65,11 +68,17 @@ public class Robot extends IterativeRobot {
         public static final double INITIAL_MAX_DRIVE_SPEED = 0.8; // 1.0;
         /** The percentage that the max drive speed is changed */
         public static final double DELTA_MAX_DRIVE_SPEED = 0.05;
+
+        public static final int THROTTLE_CHANNEL = 4;
+        public static final double THROTTLE_VOLTAGE_RANGE = 5.0d;
+        public static final int PERCENT_CHANGE_DETECTED = 5;
     }
 
     protected static DriveTrain createDriveTrain() {
-        // return new JaguarDriveTrain();
-        return new TalonDriveTrain();
+        Throttle throttle = new Throttle("Throttle", DriveMotors.THROTTLE_CHANNEL, DriveMotors.THROTTLE_VOLTAGE_RANGE,
+                                         DriveMotors.PERCENT_CHANGE_DETECTED);
+        // return new JaguarDriveTrain(throttle);
+        return new TalonDriveTrain(throttle);
     }
 
     /**
@@ -94,6 +103,7 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
         driveTrain = createDriveTrain();
+
         // Initialize the operator interface, which binds our commands to the operator interface ...
         operatorInterface = new OperatorInterface();
 
@@ -173,6 +183,7 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         Scheduler.getInstance().run();
+        driveTrain.checkThrottleForChange();
         updateStatus();
     }
 
@@ -229,12 +240,7 @@ public class Robot extends IterativeRobot {
 
     public static void updateStatus() {
         // Add our data to the "SmartDashboard".
-        LogitechController controller = operatorInterface.getController();
-
-        // First, report the joystick values ...
-        controller.updateStatus();
-
-        // Then, report the drive train status (e.g., motor speeds) ...
-        driveTrain.updateStatus();
+        SmartDashboard.putData(operatorInterface.getController());
+        SmartDashboard.putData(driveTrain);
     }
 }

@@ -6,14 +6,12 @@
  */
 package org.frc4931.prototype;
 
-import org.frc4931.prototype.command.DecreaseMaxDriveSpeed;
-import org.frc4931.prototype.command.IncreaseMaxDriveSpeed;
 import org.frc4931.prototype.command.ToggleDriveStyle;
 import org.frc4931.prototype.command.ToggleVerboseOutput;
 import org.frc4931.prototype.command.ZeroControllerInputs;
-import org.frc4931.prototype.subsystem.LogitechController;
-import org.frc4931.prototype.subsystem.LogitechController.DriveStyle;
-import org.frc4931.prototype.subsystem.LogitechController.Mode;
+import org.frc4931.prototype.device.LogitechController;
+import org.frc4931.prototype.device.LogitechController.DriveStyle;
+import org.frc4931.prototype.device.LogitechController.Mode;
 
 /**
  * This class is the glue that binds the controls on the physical operator interface to the commands and command groups that allow
@@ -24,15 +22,16 @@ import org.frc4931.prototype.subsystem.LogitechController.Mode;
  */
 public final class OperatorInterface {
 
-    private final LogitechController controller = new LogitechController(Robot.Controller.PORT, Mode.D, DriveStyle.TANK);
+    private final LogitechController controller = new LogitechController("Controller", Robot.Controller.PORT, Mode.D,
+                                                                         DriveStyle.TANK);
 
     public OperatorInterface() {
         // Run these commands each time the button is pressed ...
-        controller.getBButton().whenPressed(new IncreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
-        controller.getAButton().whenPressed(new DecreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
         controller.getYButton().whenPressed(new ToggleVerboseOutput());
         controller.getBackButton().whenPressed(new ToggleDriveStyle());
         controller.getStartButton().whenPressed(new ZeroControllerInputs());
+        // controller.getBButton().whenPressed(new IncreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
+        // controller.getAButton().whenPressed(new DecreaseMaxDriveSpeed(Robot.DriveMotors.DELTA_MAX_DRIVE_SPEED));
     }
 
     public LogitechController getController() {
