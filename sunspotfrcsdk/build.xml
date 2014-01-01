@@ -33,6 +33,50 @@
 	
 	<property file="${user.properties.file}"/>
 	<property file="${sunspot.home}/default.properties"/>
+
+    <!-- 
+    START TEAM4931 MOD
+    -->
+    <!--
+    The "bin/preverify" executable is platform specific and therefore this 'sunspotfrcsdk' file set cannot be
+    used across different platforms. (Normally, the NetBeans installer will place the correct 'preverify' file
+    under 'bin' based upon the platform. But since we don't use that installer, we can simply change the build
+    to look at the platform and set the "preverify.executable" property to the location of the platform-specific
+    executable. 
+    
+    Note that we've also modified the "crio-preverify" macro call below to pass this property in as an argument.
+    The macrodef already had the defaulted argument available; we just are now using it.
+    -->
+    <condition property="preverify.executable" value="${sunspot.home}/platform-specific/linux-x86/preverify">
+        <and>
+            <os family="unix"/>
+            <not>
+            	<!-- Mac OS X is also part of the linux family -->
+                <os name="Mac OS X"/>
+            </not>
+        </and>
+    </condition>
+    <condition property="preverify.executable" value="${sunspot.home}/platform-specific/macosx-x86/preverify">
+        <os name="Mac OS X"/>
+    </condition>
+    <condition property="preverify.executable" value="${sunspot.home}/platform-specific/windows-x86/preverify">
+        <os family="windows"/>
+    </condition>
+	<condition property="preverify.executable" value="${sunspot.home}/bin/preverify">
+		<not>  
+		    <isset property="preverify.executable"/>
+		</not>
+	</condition>
+    
+    <!--
+    <echo>${os.family}</echo>
+    <echo>${os.name}</echo>
+    <echo>${os.arch}</echo>
+    <echo>${preverify.executable}</echo>
+    -->
+	<!--
+    END TEAM4931 MOD
+	-->
 	
 
 	<import file="ant/compile.xml"/>
@@ -61,7 +105,14 @@
     <target name="preverify" depends="compile">
 		<mkdir dir="${preverify.dir}"/>
 		<mkdir dir="${preverify.raw.util.jar.classes.dir}"/>
-		<crio-preverify classes.dir="${classes.dir}" preverify.dir="${preverify.dir}" preverified.util.jars="${classpath}" raw.util.jar.classes.dir="${preverify.raw.util.jar.classes.dir}" raw.util.jars="" bootclasspath="${bootclasspath}"/>
+        <!--
+        START TEAM4931 MOD
+        <crio-preverify classes.dir="${classes.dir}" preverify.dir="${preverify.dir}" preverified.util.jars="${classpath}" raw.util.jar.classes.dir="${preverify.raw.util.jar.classes.dir}" raw.util.jars="" bootclasspath="${bootclasspath}"/>
+        -->
+		<crio-preverify classes.dir="${classes.dir}" preverify.dir="${preverify.dir}" preverified.util.jars="${classpath}" raw.util.jar.classes.dir="${preverify.raw.util.jar.classes.dir}" raw.util.jars="" bootclasspath="${bootclasspath}" preverify.executable="${preverify.executable}"/>
+        <!--
+        END TEAM4931 MOD
+        -->
 	</target>
 	
     <target name="jar-app" depends="jar"/>
