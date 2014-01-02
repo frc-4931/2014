@@ -26,15 +26,7 @@
 	</taskdef>
 	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
 		<classpath>
-		    <!-- 
-		    START TEAM4931 MOD
-		    -->
-			<!--
             <pathelement location="${sunspot.home}/ant/xmltask.jar"/>
-            -->
-		    <!-- 
-		    END TEAM4931 MOD
-		    -->
             <pathelement location="ant/xmltask.jar"/>
 		</classpath>
 	</taskdef>
