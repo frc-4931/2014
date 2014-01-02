@@ -1,0 +1,13 @@
+#!/bin/bash
+#This script installs ROS Hydro
+
+echo Installing ROS
+
+#Update sources.list
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+#Get ros public key
+wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+
+#Update and install
+sudo apt-get update
+sudo apt-get install -y ros-hydro-desktop-full

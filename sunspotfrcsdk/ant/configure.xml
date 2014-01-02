@@ -39,7 +39,7 @@
 							
 							remoteversionfilepath = "/FRC_ImageVersion.ini"
 							versionfailuremessage = "Go to http://first.wpi.edu/FRC/frcjava.html to get latest software update">
-						<version name="Name" value="FRC_2013_v47.zip;"/>
+						<version name="Name" value="FRC_2014_v52.zip;"/>
 						<version name="Language" value='"Java;"'/>
 					</frcupgrade>
 				</case>
