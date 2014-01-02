@@ -1,0 +1,25 @@
+#!/bin/bash
+#This script installs Ros and Gazebo.
+
+#Make it ask for sudo privileges, that way it asks right away and
+#not again during the process
+
+ROOT_UID=0
+
+# This needs to be run as the user to setup the Environment Variables properly
+if [ $UID -eq 0 ]
+then
+	echo 'You cannot run this script as root.'
+	exit 1
+fi
+
+sudo echo ""
+
+#Ros Installation
+./installRos
+
+#Gazebo Installation
+./installGazebo
+
+#Set up .bashrc
+./installFinalize

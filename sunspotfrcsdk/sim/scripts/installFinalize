@@ -1,0 +1,9 @@
+#!/bin/bash
+# FRC Simulator 2014 Install Script
+# This will install the 2014 FRC Simulator on your computer
+
+# Setup the Enviroment variables
+echo 'Adding Envrioment Variables to your .bashrc'
+echo 'source /opt/ros/hydro/setup.bash' >> ~/.bashrc
+echo 'export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:$HOME/sunspotfrcsdk/sim/plugin' >> ~/.bashrc
+echo 'LD_LIBRARY_PATH=$HOME/sunspotfrcsdk/sim/lib/:$LD_LIBRARY_PATH' >> ~/.bashrc

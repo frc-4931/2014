@@ -1,0 +1,7 @@
+#!/bin/bash
+# This script will update Ubuntu to recognize the install of Java from the netbeans cobundle
+
+sudo update-alternatives --install "/usr/bin/java" "java" "/usr/local/jdk1.7.0_45/jre/bin/java" 1
+sudo update-alternatives --install "/usr/bin/javaws" "javaws" "/usr/local/jdk1.7.0_45/jre/bin/javaws" 1
+sudo update-alternatives --install "/usr/bin/javac" "javac" "/usr/local/jdk1.7.0_45/bin/javac" 1
+sudo update-alternatives --install "/usr/bin/netbeans" "netbeans" "/usr/local/netbeans-7.4/bin/netbeans" 1

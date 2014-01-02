@@ -1,0 +1,6 @@
+#!/bin/bash
+#This script installs netbeans
+
+echo Installing Netbeans
+#install netbeans
+sudo apt-get install -y netbeans
