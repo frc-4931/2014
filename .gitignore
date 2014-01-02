@@ -1,12 +1,6 @@
 # Git will ignore all files matching these patterns.
 # If no path is given, the pattern will be applied to all files.
 
-# Ignore the files compiled/built from Java source ...
-*.class
-*.jar
-*.war
-*.ear
-
 # Ignore all Eclipse-specific files except for the .project file
 .metadata
 .settings
@@ -35,5 +29,11 @@ sunspotfrcsdk/doc
 !/resources
 !build.xml
 !build.properties
+
+# Ignore the files compiled/built from Java source ...
+*.class
+#*.jar
+*.war
+*.ear
 
 
