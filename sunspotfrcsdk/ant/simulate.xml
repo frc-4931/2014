@@ -1,5 +1,13 @@
 <project name="simulate">
 
+  <!--
+  START TEAM4931 MOD
+  We moved this to "${sunspot.home}/build.xml" to fix the Ant problem: 
+    "Target compile does not exist in this project."
+  It works as is, but strictly speaking it is not valid as "compile" is only defined
+  in the "${sunspot.home}/build.xml" file.
+  -->
+  <!--
   <target name="jar-for-simulation" depends="compile">
 	<echo>[jar-for-simulation] Building jar.</echo>
 	
@@ -27,5 +35,9 @@
 	<echo>[simulate] Running Code.</echo>
 	<java jar="${simulation.jar.file}" fork="true"/>
   </target>
+  -->
+  <!--
+  END TEAM4931 MOD
+  -->
   
 </project>
